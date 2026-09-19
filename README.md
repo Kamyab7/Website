@@ -1,6 +1,6 @@
 # Kamyab Valipour — personal website
 
-A responsive, single-page Nuxt 4 website with server-rendered content, a locally hosted GitHub portrait, accessible navigation, and a graphite / mint visual design.
+A responsive, single-screen Nuxt 4 profile with server-rendered content, a locally hosted GitHub portrait, accessible contact links, and a graphite / mint visual design.
 
 ## Development
 
@@ -28,6 +28,6 @@ Edit content and contact links in `app/app.vue`, styling in `app/assets/css/main
 
 ## Validation
 
-Verified production generation and TypeScript checking, layouts at 1440, 768, 390, and 320 pixels, clipboard copying, section navigation, image loading, canonical and structured data, robots.txt, and sitemap.xml.
+Verified production generation, TypeScript checking, clipboard copying, and viewport fit on desktop, tablet, mobile, and landscape screens. All profile content is visible together at standard screen sizes; unusually small viewports or enlarged accessibility text can scroll rather than clipping content. SEO metadata, robots.txt, and sitemap.xml remain available in the static output.
 
 The social image source is `scripts/social-card.html`; render it at 1200×630 pixels to update `public/social-card.png`.

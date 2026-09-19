@@ -80,189 +80,82 @@ useHead({
     },
   ],
 });
-const specialties = [
-  {
-    number: "01",
-    title: "Software engineering",
-    text: "Robust foundations. Thoughtful architecture. Software built to last.",
-    icon: "⌘",
-  },
-  {
-    number: "02",
-    title: "AI & emerging tech",
-    text: "Exploring new possibilities and turning complex problems into useful solutions.",
-    icon: "✳",
-  },
-  {
-    number: "03",
-    title: "Full-stack & DevOps",
-    text: "Connecting the dots, from the first interface to the production environment.",
-    icon: "↗",
-  },
-];
 </script>
 
 <template>
   <div class="site-shell">
     <a class="skip-link" href="#main">Skip to content</a>
     <header class="header">
-      <a class="wordmark" href="#" aria-label="Kamyab Valipour home"
+      <a class="wordmark" href="/" aria-label="Kamyab Valipour home"
         >kv<span>.</span></a
       >
-      <nav aria-label="Main navigation">
-        <a href="#about">About</a><a href="#focus">Focus</a
-        ><a class="nav-contact" href="#contact"
-          >Let's talk <span aria-hidden="true">↗</span></a
-        >
-      </nav>
+      <p class="location">
+        <span class="status-dot" /> BASED IN THE NETHERLANDS
+      </p>
     </header>
-    <main id="main">
-      <section class="hero" aria-labelledby="hero-title">
-        <div class="hero-copy">
-          <p class="eyebrow">
-            <span class="status-dot" /> SOFTWARE ENGINEER · NETHERLANDS
-          </p>
-          <h1 id="hero-title">
-            Kamyab<br />Valipour<span class="accent">.</span>
-          </h1>
-          <p class="hero-tagline">
-            Engineering ideas.<br /><span>Building what’s next.</span>
-          </p>
-          <p class="hero-description">
-            I turn complex problems into thoughtful software.<br
-              class="desktop-break"
-            />
-            Driven by curiosity. Grounded in code.
-          </p>
-          <div class="hero-actions">
+    <main id="main" class="profile">
+      <div class="intro">
+        <p class="eyebrow">SOFTWARE ENGINEER</p>
+        <h1>Kamyab<br />Valipour<span class="accent">.</span></h1>
+        <p class="tagline">
+          Engineering ideas.<br /><span>Building what’s next.</span>
+        </p>
+      </div>
+      <figure class="portrait">
+        <img
+          src="/portrait.jpg"
+          alt="Kamyab Valipour"
+          width="460"
+          height="460"
+          fetchpriority="high"
+        />
+        <figcaption>
+          <span>HUMAN BEHIND THE CODE</span
+          ><span class="accent">&lt; / &gt;</span>
+        </figcaption>
+      </figure>
+      <div class="details">
+        <p class="bio">
+          I’m a software engineer turning complex problems into thoughtful,
+          reliable software. Curious about emerging technology and passionate
+          about open source, I build across the stack — from the first idea to
+          production.
+        </p>
+        <ul class="tags" aria-label="Specialties">
+          <li>.NET</li>
+          <li>AI solutions</li>
+          <li>Full-stack</li>
+          <li>DevOps</li>
+          <li>Open source</li>
+        </ul>
+        <div class="contact">
+          <div class="contact-links">
             <a class="button" :href="`mailto:${email}`"
-              >Get in touch <span aria-hidden="true">↗</span></a
-            ><a
-              class="text-link"
+              >Let’s talk <span aria-hidden="true">↗</span></a
+            >
+            <a
               href="https://github.com/Kamyab7"
               target="_blank"
               rel="noopener noreferrer"
-              >Explore my GitHub <span aria-hidden="true">↗</span></a
+              >GitHub <span aria-hidden="true">↗</span></a
+            >
+            <a
+              href="https://www.linkedin.com/in/kamyab7/"
+              target="_blank"
+              rel="noopener noreferrer"
+              >LinkedIn <span aria-hidden="true">↗</span></a
             >
           </div>
-        </div>
-        <div class="portrait-composition">
-          <div class="orbit orbit-one" />
-          <div class="orbit orbit-two" />
-          <span class="coordinate" aria-hidden="true">PROFILE / 001</span>
-          <div class="portrait-frame">
-            <img
-              src="/portrait.jpg"
-              alt="Kamyab Valipour"
-              width="460"
-              height="460"
-              fetchpriority="high"
-            />
-            <div class="portrait-shade" />
-            <span class="frame-cross top-cross" aria-hidden="true">+</span
-            ><span class="frame-cross bottom-cross" aria-hidden="true">+</span>
-            <div class="portrait-caption">
-              <span>KAMYAB VALIPOUR</span
-              ><span class="accent">&lt; / &gt;</span>
-            </div>
-          </div>
-          <div class="floating-label">
-            <span class="status-dot" /> Always curious. Always building.
-          </div>
-          <span class="vertical-note" aria-hidden="true"
-            >HUMAN BEHIND THE CODE</span
-          >
-        </div>
-        <a class="scroll-cue" href="#about"
-          ><span aria-hidden="true">↓</span> A LITTLE ABOUT ME</a
-        >
-        <span class="hero-index" aria-hidden="true">01 — INTRODUCTION</span>
-      </section>
-      <section
-        id="about"
-        class="about section-grid"
-        aria-labelledby="about-title"
-      >
-        <div class="section-label">
-          <span class="accent">01 /</span> THE PERSON
-        </div>
-        <div>
-          <h2 id="about-title">
-            Curiosity is the starting point.<br /><span class="muted"
-              >Building is how I explore.</span
-            >
-          </h2>
-          <div class="about-copy">
-            <p>
-              I’m Kamyab, a software engineer based in the Netherlands. I work
-              across .NET, AI-driven solutions, full-stack development, and
-              DevOps to bring ideas to life.
-            </p>
-            <p>
-              I care about software that solves real problems: reliable systems,
-              better performance, and a thoughtful experience. Open source is
-              part of that journey — a place to learn, share, and build
-              together.
-            </p>
-          </div>
-          <div class="tags">
-            <span>.NET</span><span>Artificial intelligence</span
-            ><span>Full-stack</span><span>DevOps</span><span>Open source</span>
-          </div>
-        </div>
-      </section>
-      <section id="focus" class="focus" aria-labelledby="focus-title">
-        <div class="section-heading">
-          <div class="section-label">
-            <span class="accent">02 /</span> MY FOCUS
-          </div>
-          <h2 id="focus-title">
-            Where ideas meet execution<span class="accent">.</span>
-          </h2>
-        </div>
-        <div class="focus-grid">
-          <article
-            v-for="item in specialties"
-            :key="item.number"
-            class="focus-card"
-          >
-            <div class="card-top">
-              <span class="card-icon" aria-hidden="true">{{ item.icon }}</span
-              ><span class="card-number">/ {{ item.number }}</span>
-            </div>
-            <h3>{{ item.title }}</h3>
-            <p>{{ item.text }}</p>
-          </article>
-        </div>
-      </section>
-      <section
-        id="contact"
-        class="contact section-grid"
-        aria-labelledby="contact-title"
-      >
-        <div class="section-label">
-          <span class="accent">03 /</span> SAY HELLO
-        </div>
-        <div>
-          <p class="eyebrow">GOOD THINGS START WITH A CONVERSATION</p>
-          <h2 id="contact-title">
-            Let’s build<br />something <span class="accent">meaningful.</span>
-          </h2>
-          <p class="contact-description">
-            Have an idea, a question, or just want to connect? My inbox is open.
-          </p>
           <div class="email-row">
-            <a :href="`mailto:${email}`"
-              >{{ email }} <span aria-hidden="true">↗</span></a
-            ><button
-              class="copy-button"
+            <a :href="`mailto:${email}`">{{ email }}</a>
+            <button
               type="button"
               aria-label="Copy email address"
               @click="copyEmail"
             >
               <svg
-                width="18"
-                height="18"
+                width="16"
+                height="16"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
@@ -276,7 +169,7 @@ const specialties = [
               </svg>
             </button>
           </div>
-          <p class="copy-status" aria-live="polite">
+          <p class="copy-status" role="status">
             {{
               copied
                 ? "Email copied to clipboard."
@@ -285,28 +178,12 @@ const specialties = [
                   : ""
             }}
           </p>
-          <div class="social-links">
-            <a
-              href="https://github.com/Kamyab7"
-              target="_blank"
-              rel="noopener noreferrer"
-              >GitHub <span aria-hidden="true">↗</span></a
-            ><a
-              href="https://www.linkedin.com/in/kamyab7/"
-              target="_blank"
-              rel="noopener noreferrer"
-              >LinkedIn <span aria-hidden="true">↗</span></a
-            >
-          </div>
         </div>
-      </section>
+      </div>
     </main>
     <footer>
-      <a class="wordmark" href="#" aria-label="Back to top">kv<span>.</span></a>
       <p>© {{ new Date().getFullYear() }} Kamyab Valipour</p>
-      <a class="back-top" href="#"
-        >Back to top <span aria-hidden="true">↑</span></a
-      >
+      <p>Always curious. Always building.</p>
     </footer>
   </div>
 </template>
