@@ -14,6 +14,7 @@
 }
 body {
   margin: 0;
+  overflow-x: hidden;
 }
 h1,
 p,
@@ -46,9 +47,11 @@ button:focus-visible {
 .site-shell {
   width: min(1200px, 88%);
   min-height: 100svh;
+  max-height: 100svh;
   margin: auto;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 .header {
   display: flex;
@@ -97,21 +100,6 @@ button:focus-visible {
   grid-column: 1;
   grid-row: 1;
 }
-h1 {
-  font:
-    500 clamp(42px, min(5.6vw, 8vh), 76px)/1.02 "Inter",
-    sans-serif;
-  letter-spacing: -3px;
-  margin: 16px 0;
-}
-.tagline {
-  font-size: clamp(17px, 1.8vw, 22px);
-  line-height: 1.45;
-  letter-spacing: -0.4px;
-}
-.tagline span {
-  color: var(--muted);
-}
 .portrait {
   grid-column: 2;
   grid-row: 1/3;
@@ -119,12 +107,35 @@ h1 {
   position: relative;
   isolation: isolate;
   width: 100%;
-  max-width: 430px;
+  max-width: 280px;
   justify-self: end;
   border: 1px solid #556744;
-  padding: 10px;
-  border-radius: 100px 8px 8px 8px;
+  padding: 8px;
+  border-radius: 80px 8px 8px 8px;
   background: #1c2418;
+}
+.details {
+  grid-column: 1;
+  grid-row: 2;
+  min-width: 0;
+}
+.recommendations {
+  margin: 10px 0 16px;
+}
+h1 {
+  font:
+    500 clamp(30px, min(4.2vw, 6vh), 58px)/1.04 "Inter",
+    sans-serif;
+  letter-spacing: -2.5px;
+  margin: 12px 0;
+}
+.tagline {
+  font-size: clamp(15px, 1.5vw, 19px);
+  line-height: 1.35;
+  letter-spacing: -0.3px;
+}
+.tagline span {
+  color: var(--muted);
 }
 .portrait:before {
   content: "";
@@ -137,9 +148,9 @@ h1 {
 .portrait img {
   display: block;
   width: 100%;
-  height: min(48svh, 430px);
+  height: min(32svh, 280px);
   object-fit: cover;
-  border-radius: 90px 3px 3px 3px;
+  border-radius: 72px 3px 3px 3px;
   filter: grayscale(1);
 }
 figcaption {
@@ -155,22 +166,127 @@ figcaption {
 figcaption .accent {
   font-size: 20px;
 }
-.details {
-  grid-column: 1;
-  grid-row: 2;
-  min-width: 0;
-}
 .bio {
   color: var(--muted);
-  font-size: 15px;
-  line-height: 1.8;
+  font-size: 14px;
+  line-height: 1.7;
   max-width: 560px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 8px;
 }
 .bio p {
   margin: 0;
+}
+.section-label {
+  font:
+    600 10px "Inter",
+    sans-serif;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #bec5b7;
+  margin: 0 0 12px;
+}
+.recommendations {
+  margin: 0 0 16px;
+}
+.recommendation-slider {
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: rgba(20, 24, 18, 0.9);
+}
+.recommendation-track {
+  display: flex;
+  transition: transform 0.45s ease;
+}
+.recommendation-card {
+  min-width: 100%;
+  padding: 16px 16px 14px;
+  color: var(--muted);
+}
+.recommendation-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.recommendation-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid rgba(185, 247, 122, 0.3);
+  background: #202820;
+  flex-shrink: 0;
+}
+.recommendation-avatar.fallback {
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent);
+}
+.recommendation-card p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.75;
+  color: #c7cdc1;
+}
+.recommendation-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+.recommendation-meta strong {
+  color: #eef1eb;
+  font-size: 12px;
+}
+.recommendation-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 12px;
+}
+.slider-button {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.slider-button:hover {
+  border-color: rgba(185, 247, 122, 0.65);
+  color: var(--accent);
+}
+.slider-dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex: 1;
+}
+.dot {
+  width: 8px;
+  height: 8px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.2s ease;
+}
+.dot.active {
+  width: 22px;
+  border-radius: 999px;
+  background: var(--accent);
 }
 .tags {
   list-style: none;

@@ -4,9 +4,58 @@ const title = "Kamyab Valipour — Software Engineer";
 const description =
   "Kamyab Valipour is a software engineer based in the Netherlands, focused on .NET, AI-driven solutions, full-stack development, and DevOps. Get in touch.";
 const email = "valipourkamyab.official@gmail.com";
+const recommendations = [
+  {
+    name: "Ekaterina Menkovich",
+    role: "Software Development Engineer in Test",
+    avatar:
+      "https://media.licdn.com/dms/image/v2/D4E03AQG0smJlbECi8A/profile-displayphoto-shrink_100_100/profile-displayphoto-shrink_100_100/0/1699267706683?e=1791417600&v=beta&t=8CnIYRteKBeAi2iiwwEs4e2bNiLiXgq4vNSoLmb_03Y",
+    quote:
+      "Kamyab is a highly skilled and versatile developer with extensive expertise in C# and PostgreSQL. He consistently demonstrates professionalism and a strong work ethic, delivering exceptional results within tight deadlines.",
+  },
+  {
+    name: "Erfan Kamali",
+    role: "Software Engineer",
+    avatar: "",
+    initial: "E",
+    quote:
+      "Working with Kamyab has been a great experience. He’s not just a highly skilled .NET developer with strong DevOps expertise, but also someone who’s always eager to learn and improve.",
+  },
+  {
+    name: "Shahab Bahojb",
+    role: ".NET Developer",
+    avatar: "",
+    initial: "S",
+    quote:
+      "I had the pleasure of working with Kamyab at WeCodeRight, and I can confidently say he is a skilled backend developer with a deep expertise in .NET. His dedication, dependability, and commitment to excellence stand out.",
+  },
+  {
+    name: "Mahsa Akay",
+    role: "Cloud Engineer | CKA | CKAD | AWS | Openstack | Telco Cloud",
+    avatar:
+      "https://media.licdn.com/dms/image/v2/D4D03AQHFnQxZ7BUNMg/profile-displayphoto-shrink_100_100/B4DZSadYi8H0AU-/0/1737758182010?e=1791417600&v=beta&t=v4KsxNrU9S9N2Ag_P9GbnmZ8x6enuC1JzOlkqYnor8Y",
+    quote:
+      "I’ve had the pleasure of working with Kamyab, and he’s a fantastic .NET developer. His deep knowledge of C#, ASP.NET, and backend systems makes him a go-to person for complex challenges. Beyond his technical skills, he is a great team player—always helpful, communicative, and easy to work with.",
+  },
+];
+const activeRecommendation = ref(0);
 const copied = ref(false);
 const copyFailed = ref(false);
 let resetTimer: ReturnType<typeof setTimeout> | undefined;
+let sliderTimer: ReturnType<typeof setInterval> | undefined;
+
+function goToRecommendation(index: number) {
+  activeRecommendation.value = (index + recommendations.length) % recommendations.length;
+}
+
+function nextRecommendation() {
+  goToRecommendation(activeRecommendation.value + 1);
+}
+
+function previousRecommendation() {
+  goToRecommendation(activeRecommendation.value - 1);
+}
+
 async function copyEmail() {
   try {
     await navigator.clipboard.writeText(email);
@@ -20,7 +69,18 @@ async function copyEmail() {
     copyFailed.value = true;
   }
 }
-onBeforeUnmount(() => clearTimeout(resetTimer));
+onMounted(() => {
+  sliderTimer = setInterval(() => {
+    nextRecommendation();
+  }, 5000);
+});
+
+onBeforeUnmount(() => {
+  clearTimeout(resetTimer);
+  if (sliderTimer) {
+    clearInterval(sliderTimer);
+  }
+});
 useSeoMeta({
   title,
   description,
@@ -137,6 +197,63 @@ useHead({
           </p>
           <p>And I’m still building.</p>
         </div>
+
+        <section class="recommendations" aria-label="Recommendations">
+          <div class="section-label">Recommendations</div>
+          <div class="recommendation-slider">
+            <div
+              class="recommendation-track"
+              :style="{
+                transform: `translateX(-${activeRecommendation * 100}%)`,
+              }"
+            >
+              <article
+                v-for="(item, index) in recommendations"
+                :key="item.name"
+                class="recommendation-card"
+                :aria-label="`Recommendation ${index + 1} of ${recommendations.length}`"
+              >
+                <div class="recommendation-header">
+                  <template v-if="item.avatar">
+                    <img
+                      class="recommendation-avatar"
+                      :src="item.avatar"
+                      :alt="item.name"
+                    />
+                  </template>
+                  <div v-else class="recommendation-avatar fallback" aria-hidden="true">
+                    {{ item.initial }}
+                  </div>
+                  <div class="recommendation-meta">
+                    <strong>{{ item.name }}</strong>
+                    <span>{{ item.role }}</span>
+                  </div>
+                </div>
+                <p>“{{ item.quote }}”</p>
+              </article>
+            </div>
+          </div>
+          <div class="recommendation-controls" aria-label="Recommendation controls">
+            <button type="button" class="slider-button" @click="previousRecommendation" aria-label="Previous recommendation">
+              ←
+            </button>
+            <div class="slider-dots" aria-label="Recommendation pagination">
+              <button
+                v-for="(item, index) in recommendations"
+                :key="item.name"
+                type="button"
+                class="dot"
+                :class="{ active: activeRecommendation === index }"
+                :aria-label="`Go to recommendation ${index + 1}`"
+                @click="goToRecommendation(index)"
+              />
+            </div>
+            <button type="button" class="slider-button" @click="nextRecommendation" aria-label="Next recommendation">
+              →
+            </button>
+          </div>
+        </section>
+
         <ul class="tags" aria-label="Specialties">
           <li>.NET</li>
           <li>AI solutions</li>
