@@ -1,6 +1,6 @@
-@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
 :root {
-  font-family: "DM Sans", sans-serif;
+  font-family: "Inter", sans-serif;
   color: #eeefeb;
   background: #101310;
   font-synthesis: none;
@@ -59,14 +59,14 @@ button:focus-visible {
 }
 .wordmark {
   font:
-    700 34px "Space Grotesk",
+    700 34px "Inter",
     sans-serif;
   letter-spacing: -3px;
 }
 .location,
 .eyebrow {
   font:
-    500 10px "Space Grotesk",
+    500 10px "Inter",
     sans-serif;
   letter-spacing: 1.7px;
   color: #bec5b7;
@@ -99,7 +99,7 @@ button:focus-visible {
 }
 h1 {
   font:
-    500 clamp(54px, min(7.4vw, 11svh), 100px)/1.02 "Space Grotesk",
+    500 clamp(54px, min(7.4vw, 11svh), 100px)/1.02 "Inter",
     sans-serif;
   letter-spacing: -4px;
   margin: 16px 0;
@@ -148,7 +148,7 @@ figcaption {
   justify-content: space-between;
   padding: 16px 8px 6px;
   font:
-    500 9px "Space Grotesk",
+    500 9px "Inter",
     sans-serif;
   letter-spacing: 1.3px;
 }
