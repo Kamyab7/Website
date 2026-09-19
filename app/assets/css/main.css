@@ -15,6 +15,10 @@
 body {
   margin: 0;
   overflow-x: hidden;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top, rgba(185, 247, 122, 0.06), transparent 28%),
+    #101310;
 }
 h1,
 p,
@@ -47,11 +51,11 @@ button:focus-visible {
 .site-shell {
   width: min(1200px, 88%);
   min-height: 100svh;
-  max-height: 100svh;
   margin: auto;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  padding: 0 0 12px;
 }
 .header {
   display: flex;
@@ -59,6 +63,7 @@ button:focus-visible {
   justify-content: space-between;
   min-height: 76px;
   border-bottom: 1px solid var(--border);
+  padding: 6px 0 0;
 }
 .wordmark {
   font:
@@ -93,8 +98,8 @@ button:focus-visible {
   grid-template-rows: auto auto;
   align-content: center;
   column-gap: 9%;
-  row-gap: 22px;
-  padding: 28px 0;
+  row-gap: 18px;
+  padding: 24px 0 18px;
 }
 .intro {
   grid-column: 1;
@@ -107,12 +112,18 @@ button:focus-visible {
   position: relative;
   isolation: isolate;
   width: 100%;
-  max-width: 280px;
+  max-width: 290px;
   justify-self: end;
-  border: 1px solid #556744;
+  border: 1px solid rgba(133, 156, 100, 0.5);
   padding: 8px;
-  border-radius: 80px 8px 8px 8px;
-  background: #1c2418;
+  border-radius: 84px 12px 12px 12px;
+  background: linear-gradient(180deg, rgba(26, 30, 21, 0.96), rgba(18, 22, 17, 0.96));
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.portrait:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 22px 48px rgba(0, 0, 0, 0.22);
 }
 .details {
   grid-column: 1;
@@ -192,9 +203,10 @@ figcaption .accent {
 }
 .recommendation-slider {
   overflow: hidden;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  background: rgba(20, 24, 18, 0.9);
+  border: 1px solid rgba(133, 156, 100, 0.35);
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(20, 24, 18, 0.96), rgba(16, 18, 15, 0.96));
+  box-shadow: 0 12px 22px rgba(0, 0, 0, 0.1);
 }
 .recommendation-track {
   display: flex;
@@ -204,6 +216,7 @@ figcaption .accent {
   min-width: 100%;
   padding: 16px 16px 14px;
   color: var(--muted);
+  border: 1px solid rgba(185, 247, 122, 0.08);
 }
 .recommendation-header {
   display: flex;
@@ -299,10 +312,11 @@ figcaption .accent {
 .tags li {
   font-size: 10px;
   padding: 7px 10px;
-  border: 1px solid #343c2e;
-  border-radius: 4px;
+  border: 1px solid rgba(133, 156, 100, 0.32);
+  border-radius: 6px;
   color: #b8c2b1;
-  background: #191e16;
+  background: rgba(25, 30, 22, 0.92);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.02);
 }
 .contact-links {
   display: flex;
@@ -332,13 +346,14 @@ figcaption .accent {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 50px;
-  height: 50px;
+  width: 46px;
+  height: 46px;
   border: 1px solid var(--border);
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.01);
   color: #dfe6d3;
   transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
 }
 .social-link svg {
   width: 22px;
@@ -366,6 +381,7 @@ footer {
   gap: 12px;
   font-size: 10px;
   color: var(--muted);
+  opacity: 0.9;
 }
 .skip-link {
   position: fixed;
