@@ -164,7 +164,7 @@ useHead({
         <p class="eyebrow">SOFTWARE ENGINEER</p>
         <h1>Kamyab<br /> Valipour<span class="accent">.</span></h1>
         <p class="tagline">
-          Engineering ideas.<br /><span>Building what’s next.</span>
+          Curious by nature.<br /><span>Engineer by craft.</span>
         </p>
         <ul class="tags" aria-label="Specialties">
           <li>.NET</li>
