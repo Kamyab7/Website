@@ -156,7 +156,7 @@ useHead({
     <main id="main" class="profile">
       <div class="intro">
         <p class="eyebrow">SOFTWARE ENGINEER</p>
-        <h1>Kamyab<br />Valipour<span class="accent">.</span></h1>
+        <h1>Kamyab<br /> Valipour<span class="accent">.</span></h1>
         <p class="tagline">
           Engineering ideas.<br /><span>Building what’s next.</span>
         </p>
