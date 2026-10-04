@@ -149,6 +149,15 @@ useHead({
       <a class="wordmark" href="/" aria-label="Kamyab Valipour home"
         >kv<span>.</span></a
       >
+      <nav class="header-links" aria-label="Main navigation">
+        <a
+          class="blog-link"
+          href="https://blog.kamyabvalipour.com/"
+          target="_blank"
+          rel="noopener noreferrer"
+        >Blog <span aria-hidden="true">↗</span></a>
+        <a class="button" :href="`mailto:${email}`">Let’s talk <span aria-hidden="true">↗</span></a>
+      </nav>
     </header>
     <main id="main" class="profile">
       <div class="intro">
@@ -166,13 +175,6 @@ useHead({
         </ul>
         <div class="contact">
           <div class="contact-links">
-            <a class="button" :href="`mailto:${email}`">Let’s talk <span aria-hidden="true">↗</span></a>
-            <a
-              class="blog-link"
-              href="https://blog.kamyabvalipour.com/"
-              target="_blank"
-              rel="noopener noreferrer"
-            >Blog <span aria-hidden="true">↗</span></a>
             <a
               class="social-link"
               href="https://github.com/Kamyab7"
