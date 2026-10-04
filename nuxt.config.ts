@@ -15,7 +15,6 @@ export default defineNuxtConfig({
   css: ["~/assets/css/main.css"],
   runtimeConfig: {
     public: {
-      siteUrl: "https://kamyabvalipour.com",
       // TODO: Set NUXT_PUBLIC_GA_MEASUREMENT_ID to your GA4 G-XXXXXXXXXX ID.
       gaMeasurementId: "",
     },

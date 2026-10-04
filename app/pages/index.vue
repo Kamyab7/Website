@@ -1,5 +1,6 @@
 <script setup lang="ts">
-const siteUrl = new URL(useRuntimeConfig().public.siteUrl).origin;
+import { SITE_URL } from "#shared/site";
+const siteUrl = SITE_URL;
 const title = "Kamyab Valipour — Software Engineer";
 const description =
   "Kamyab Valipour is a software engineer based in the Netherlands, focused on .NET, AI-driven solutions, full-stack development, and DevOps. Get in touch.";

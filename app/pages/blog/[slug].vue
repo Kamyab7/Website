@@ -1,11 +1,12 @@
 <script setup lang="ts">
+import { SITE_URL } from "#shared/site";
 import { formatBlogDate } from '#shared/blog';
 definePageMeta({ key: route => route.path });
 const slug = String(useRoute().params.slug);
 const { data, error } = await useFetch(`/api/blog/${encodeURIComponent(slug)}`);
 if (error.value || !data.value) throw createError({ statusCode: error.value?.statusCode || 500, statusMessage: error.value?.statusCode === 404 ? 'Post not found' : 'Unable to load post' });
 const post = data.value;
-const origin = new URL(useRuntimeConfig().public.siteUrl).origin;
+const origin = SITE_URL;
 const path = `/blog/${post.slug}`;
 useBlogSeo({ title: `${post.title} — Kamyab Valipour`, description: post.description, path, image: post.image, imageAlt: post.imageAlt, article: post,
   schema: { '@context': 'https://schema.org', '@graph': [

@@ -1,5 +1,6 @@
+import { SITE_URL } from "#shared/site";
 export function useBlogSeo(options: { title: string; description: string; path: string; image?: string; imageAlt?: string; article?: { date: string; updated: string }; schema: Record<string, unknown> }) {
-  const origin = new URL(useRuntimeConfig().public.siteUrl).origin;
+  const origin = SITE_URL;
   const url = `${origin}${options.path}`;
   const image = new URL(options.image || '/social-card.png', origin).href;
   useSeoMeta({

@@ -1,7 +1,8 @@
+import { SITE_URL } from "#shared/site";
 import rawPosts from '../../.generated/blog.json';
 import { BLOG_PAGE_SIZE, blogPagePath, type BlogPost } from '#shared/blog';
 export default defineEventHandler((event) => {
-  const origin = new URL(useRuntimeConfig(event).public.siteUrl).origin;
+  const origin = SITE_URL;
   const posts = rawPosts as BlogPost[];
   const escape = (value: string) => value.replace(/[<>&"']/g, char => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&apos;' })[char]!);
   const entries = [

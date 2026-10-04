@@ -13,7 +13,7 @@ npm run dev
 
 ## Production
 
-Copy `.env.example` to `.env` and set `NUXT_PUBLIC_SITE_URL` to the real production origin **before building**. The default is the domain listed on Kamyab's GitHub profile, `https://kamyabvalipour.com`.
+The production origin is hardcoded as `https://kamyabvalipour.com` in `shared/site.ts`.
 
 ```sh
 npm run typecheck
@@ -62,8 +62,7 @@ Write your article here. Start body sections with ## because the title is the H1
 - Posts, pagination, and the index are prerendered at build time. Metadata includes
   canonical URLs, Open Graph, Twitter cards, BlogPosting and breadcrumb structured
   data, and sitemap modification dates. Invalid posts or pagination return 404.
-- `NUXT_PUBLIC_SITE_URL` must be your public site origin when building/deploying so
-  canonical URLs and sitemap links point to the correct domain.
+- Canonical URLs and sitemap links use the production origin in `shared/site.ts`.
 - Rebuild and redeploy after publishing. Restart `npm run dev` after adding or
   changing Markdown if your running dev session does not pick it up automatically.
 - `.generated/blog.json` is generated from Markdown when Nuxt loads its config;

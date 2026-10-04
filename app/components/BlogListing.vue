@@ -1,10 +1,11 @@
 <script setup lang="ts">
+import { SITE_URL } from "#shared/site";
 import { blogPagePath, formatBlogDate } from '#shared/blog';
 const props = defineProps<{ page: number }>();
 const { data, error } = await useFetch('/api/blog', { query: { page: props.page }, key: `blog-page-${props.page}` });
 if (error.value || !data.value) throw createError({ statusCode: error.value?.statusCode || 500, statusMessage: error.value?.statusCode === 404 ? 'Page not found' : 'Unable to load blog' });
 const listing = data.value;
-const origin = new URL(useRuntimeConfig().public.siteUrl).origin;
+const origin = SITE_URL;
 const path = blogPagePath(props.page);
 const title = props.page === 1 ? 'Blog — Kamyab Valipour' : `Blog — Page ${props.page} — Kamyab Valipour`;
 const description = `Notes on software engineering, .NET, AI, and building things.${props.page > 1 ? ` Page ${props.page}.` : ''}`;

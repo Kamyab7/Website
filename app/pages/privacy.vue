@@ -1,5 +1,6 @@
 <script setup lang="ts">
-const origin = new URL(useRuntimeConfig().public.siteUrl).origin;
+import { SITE_URL } from "#shared/site";
+const origin = SITE_URL;
 const analyticsConfigured = /^G-[A-Z0-9]+$/.test(useRuntimeConfig().public.gaMeasurementId);
 const title = 'Privacy & cookies — Kamyab Valipour';
 const description = 'How this website handles personal information, optional Google Analytics, and your cookie choices.';
