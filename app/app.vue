@@ -149,9 +149,6 @@ useHead({
       <a class="wordmark" href="/" aria-label="Kamyab Valipour home"
         >kv<span>.</span></a
       >
-      <p class="location">
-        <span class="status-dot" /> BASED IN THE NETHERLANDS
-      </p>
     </header>
     <main id="main" class="profile">
       <div class="intro">
