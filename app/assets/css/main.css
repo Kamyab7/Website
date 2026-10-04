@@ -63,6 +63,8 @@ figcaption .accent { font-size: 16px; }
 .contact-links { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
 .button { display: inline-flex; align-items: center; justify-content: space-between; gap: 24px; min-height: 44px; padding: 0 18px; margin-right: 8px; background: var(--accent); color: #17200f; border-radius: 4px; font-size: 12px; font-weight: 600; }
 .button:hover { background: #d0ffaa; color: #17200f; }
+.blog-link { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 14px; border: 1px solid var(--border); border-radius: 4px; font-size: 12px; font-weight: 500; }
+.blog-link:hover { border-color: var(--accent); }
 .social-link { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 44px; border-radius: 4px; color: #a0a79e; transition: color .2s ease, background .2s ease; }
 .social-link svg { width: 19px; height: 19px; fill: currentColor; }
 .social-link:hover { background: #1d251a; color: var(--accent); }

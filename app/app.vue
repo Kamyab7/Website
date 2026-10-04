@@ -171,6 +171,12 @@ useHead({
           <div class="contact-links">
             <a class="button" :href="`mailto:${email}`">Let’s talk <span aria-hidden="true">↗</span></a>
             <a
+              class="blog-link"
+              href="https://blog.kamyabvalipour.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >Blog <span aria-hidden="true">↗</span></a>
+            <a
               class="social-link"
               href="https://github.com/Kamyab7"
               target="_blank"
