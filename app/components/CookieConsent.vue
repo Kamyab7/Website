@@ -60,6 +60,7 @@ onBeforeUnmount(() => {
     <button id="cookie-settings" class="cookie-settings" type="button" :aria-expanded="open" aria-controls="cookie-consent" @click="open = !open">Cookie settings</button>
     <section v-if="open" id="cookie-consent" class="cookie-banner" role="region" aria-labelledby="cookie-title">
       <h2 id="cookie-title">Your cookie choice</h2>
+      <p><a class="privacy-notice-link" href="/privacy">Privacy &amp; cookie notice</a></p>
       <p>With your permission, we use Google Analytics to understand which pages are useful. Analytics cookies help measure visits and send usage information to Google. You can reject analytics and still use the whole site.</p>
       <p class="cookie-detail">Your choice is saved on this device for 180 days. You can change it anytime using Cookie settings.</p>
       <p v-if="choice" class="cookie-detail">Analytics is currently {{ choice === 'accepted' ? 'allowed' : 'rejected' }}.</p>

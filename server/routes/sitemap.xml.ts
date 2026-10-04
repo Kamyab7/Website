@@ -6,6 +6,7 @@ export default defineEventHandler((event) => {
   const escape = (value: string) => value.replace(/[<>&"']/g, char => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&apos;' })[char]!);
   const entries = [
     { path: '/', updated: undefined },
+    { path: '/privacy', updated: undefined },
     ...Array.from({ length: Math.max(1, Math.ceil(posts.length / BLOG_PAGE_SIZE)) }, (_, i) => ({ path: blogPagePath(i + 1), updated: undefined })),
     ...posts.map(post => ({ path: `/blog/${post.slug}`, updated: post.updated })),
   ];

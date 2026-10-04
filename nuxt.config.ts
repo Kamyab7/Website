@@ -26,5 +26,5 @@ export default defineNuxtConfig({
       link: [{ rel: "icon", type: "image/svg+xml", href: "/favicon.svg" }],
     },
   },
-  nitro: { prerender: { routes: ["/", "/robots.txt", "/sitemap.xml", ...blogRoutes] } },
+  nitro: { prerender: { routes: ["/", "/privacy", "/robots.txt", "/sitemap.xml", ...blogRoutes] } },
 });

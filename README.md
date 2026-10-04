@@ -94,3 +94,13 @@ URL fragments, and referrers. Do not put personal data into page titles or paths
 Google Analytics reporting itself can only be verified once a real ID is configured.
 
 Implementation reference: [Google's basic consent mode](https://developers.google.com/tag-platform/security/concepts/consent-mode).
+
+## Privacy notice
+
+The `/privacy` page describes the implemented consent mechanism, external font/image
+requests, and contact handling. It is linked from the banner and both site footers.
+Before enabling GA4, confirm the actual GA4 retention period and Google account
+processing/transfer arrangements, then update the notice. Also confirm your hosting
+provider, server-log retention, and correspondence retention practices; these cannot
+be determined from the source code. The page currently describes these limits without
+inventing provider names or retention periods.

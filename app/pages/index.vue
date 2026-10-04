@@ -320,6 +320,7 @@ useHead({
     </main>
     <footer>
       <p>© {{ new Date().getFullYear() }} Kamyab Valipour</p>
+      <a href="/privacy">Privacy &amp; cookies</a>
       <p>Always curious. Always building.</p>
     </footer>
   </div>

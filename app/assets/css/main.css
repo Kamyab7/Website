@@ -198,3 +198,6 @@ footer { min-height: 80px; padding: 20px 0; border-top: 1px solid var(--border);
 .cookie-actions button { flex: 1; min-height: 44px; padding: 10px 14px; border: 1px solid var(--accent); border-radius: 4px; background: transparent; color: var(--accent); cursor: pointer; font-size: 12px; }
 .cookie-actions button:hover { background: var(--accent-soft); }
 .cookie-settings:hover { color: var(--accent); }
+.privacy-notice-link { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+.privacy-settings-button { min-height: 44px; padding: 10px 16px; border: 1px solid var(--accent); border-radius: 4px; background: transparent; color: var(--accent); cursor: pointer; }
+.privacy-settings-button:hover { background: var(--accent-soft); }
