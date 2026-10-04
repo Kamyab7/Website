@@ -57,7 +57,8 @@ figcaption .accent { font-size: 16px; }
 .recommendation-meta strong { color: var(--text); font-size: 13px; font-weight: 500; }
 .recommendation-card p { font-size: 14px; line-height: 1.85; color: #cbd5e1; }
 .recommendation-controls { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 16px; }
-.slider-button { width: 40px; height: 40px; border-radius: 4px; border: 1px solid var(--border); background: transparent; color: var(--muted); cursor: pointer; }
+.slider-button { display: grid; place-items: center; width: 40px; height: 40px; padding: 0; border-radius: 4px; border: 1px solid var(--border); background: transparent; color: var(--muted); cursor: pointer; }
+.slider-button svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.75; stroke-linecap: round; stroke-linejoin: round; }
 .slider-button:hover { color: var(--accent); border-color: var(--accent); }
 .slider-dots { display: flex; align-items: center; justify-content: center; gap: 4px; }
 .dot { display: grid; place-items: center; width: 28px; height: 36px; border: 0; background: transparent; cursor: pointer; padding: 0; }

@@ -8,7 +8,7 @@
           class="blog-link"
           href="/blog"
         >Blog</a>
-        <a class="button" href="mailto:valipourkamyab.official@gmail.com">Let’s talk <span aria-hidden="true">↗</span></a>
+        <a class="button" href="mailto:valipourkamyab.official@gmail.com">Let’s talk</a>
       </nav>
     </header>
 </template>

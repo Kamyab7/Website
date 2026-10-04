@@ -291,7 +291,9 @@ useHead({
           </div>
           <div class="recommendation-controls" aria-label="Recommendation controls">
             <button type="button" class="slider-button" @click="previousRecommendation" aria-label="Previous recommendation">
-              ←
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path d="m14 6-6 6 6 6" />
+              </svg>
             </button>
             <div class="slider-dots" aria-label="Recommendation pagination">
               <button
@@ -306,7 +308,9 @@ useHead({
               />
             </div>
             <button type="button" class="slider-button" @click="nextRecommendation" aria-label="Next recommendation">
-              →
+              <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path d="m10 6 6 6-6 6" />
+              </svg>
             </button>
           </div>
         </section>
