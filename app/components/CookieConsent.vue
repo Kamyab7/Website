@@ -66,7 +66,7 @@ onBeforeUnmount(() => {
       <p v-if="choice" class="cookie-detail">Analytics is currently {{ choice === 'accepted' ? 'allowed' : 'rejected' }}.</p>
       <div class="cookie-actions">
         <button type="button" @click="choose('rejected')">Reject analytics</button>
-        <button type="button" @click="choose('accepted')">Accept analytics</button>
+        <button class="cookie-accept" type="button" @click="choose('accepted')">Accept analytics</button>
       </div>
     </section>
   </template>
