@@ -86,7 +86,7 @@ useSeoMeta({
   description,
   author: "Kamyab Valipour",
   robots: "index, follow",
-  themeColor: "#101310",
+  themeColor: "#0f172a",
   ogTitle: title,
   ogDescription: description,
   ogType: "website",
