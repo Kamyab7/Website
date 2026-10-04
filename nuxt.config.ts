@@ -13,7 +13,13 @@ export default defineNuxtConfig({
   },
   devtools: { enabled: false },
   css: ["~/assets/css/main.css"],
-  runtimeConfig: { public: { siteUrl: "https://kamyabvalipour.com" } },
+  runtimeConfig: {
+    public: {
+      siteUrl: "https://kamyabvalipour.com",
+      // TODO: Set NUXT_PUBLIC_GA_MEASUREMENT_ID to your GA4 G-XXXXXXXXXX ID.
+      gaMeasurementId: "",
+    },
+  },
   app: {
     head: {
       htmlAttrs: { lang: "en" },

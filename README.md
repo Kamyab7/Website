@@ -73,3 +73,24 @@ Write your article here. Start body sections with ## because the title is the H1
 
 Existing articles on the external blog are not imported automatically. If migrating
 existing URLs, add redirects on the old blog host to the matching new post URLs.
+
+## Google Analytics 4 and cookie consent
+
+TODO: Set `NUXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX` in your environment (see
+`.env.example`), then rebuild/redeploy. The default is blank, so no Google tag
+loads until you supply a valid ID **and** a visitor accepts analytics.
+
+The banner uses basic consent mode: no Google analytics script or analytics request
+before consent or after rejection on a fresh visit. Advertising consent stays denied.
+Accept/reject choices are stored locally for 180 days; Cookie settings lets visitors
+withdraw permission. Withdrawal disables collection and removes accessible GA cookies.
+Storage changes also synchronize across tabs. If browser storage is unavailable,
+the choice applies only to the current visit.
+
+Page views are sent on initial acceptance and Nuxt page navigation. In your GA4 web
+stream, turn off Enhanced Measurement's automatic browser-history page views to
+avoid duplicate SPA page views. The manual page-view event excludes query strings,
+URL fragments, and referrers. Do not put personal data into page titles or paths.
+Google Analytics reporting itself can only be verified once a real ID is configured.
+
+Implementation reference: [Google's basic consent mode](https://developers.google.com/tag-platform/security/concepts/consent-mode).
