@@ -35,7 +35,15 @@ async function subscribe() {
       </div>
       <div class="newsletter-trap" aria-hidden="true"><label for="newsletter-website">Website</label><input id="newsletter-website" v-model="website" name="website" tabindex="-1" autocomplete="off"></div>
       <label class="newsletter-consent"><input v-model="consent" type="checkbox" required :disabled="pending"><span>I agree to receive email updates. Read the <a href="/privacy#email-updates">privacy notice</a>.</span></label>
-      <p v-if="message" role="status" aria-live="polite" :class="{ 'newsletter-error': failed }">{{ message }}</p>
+      <div class="newsletter-feedback" role="status" aria-live="polite" aria-atomic="true">
+        <div v-if="message" class="newsletter-notice" :class="{ 'newsletter-error': failed }">
+          <svg v-if="!failed" class="newsletter-notice-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3" /><path d="m3 7 9 6 9-6" /></svg>
+          <div>
+            <strong>{{ failed ? 'Please try again' : 'Check your inbox' }}</strong>
+            <p>{{ message }}</p>
+          </div>
+        </div>
+      </div>
     </form>
   </section>
 </template>

@@ -272,7 +272,11 @@ footer { min-height: 80px; padding: 20px 0; border-top: 1px solid var(--border);
 .newsletter-fields .button:disabled { cursor: wait; }
 button:disabled { opacity: .65; cursor: wait; }
 .newsletter-trap { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
-.newsletter .newsletter-error { color: var(--text); }
+.newsletter-notice { display: flex; align-items: flex-start; gap: 14px; margin-top: 20px; padding: 18px; border: 1px solid var(--accent); border-left-width: 4px; border-radius: 8px; background: var(--accent-soft); color: var(--text); }
+.newsletter-notice-icon { flex-shrink: 0; margin-top: 1px; color: var(--accent); }
+.newsletter-notice strong { display: block; font-size: 16px; font-weight: 600; line-height: 1.5; }
+.newsletter-notice p { margin: 6px 0 0; font-size: 14px; line-height: 1.7; color: var(--text); }
+.newsletter .newsletter-error { border-color: var(--border); background: var(--surface); }
 @media (max-width: 480px) { .newsletter-fields { flex-direction: column; } }
 
 .newsletter-trigger { appearance: none; border: 0; padding: 0 14px; margin-right: 0; gap: 14px; font-family: inherit; cursor: pointer; }
