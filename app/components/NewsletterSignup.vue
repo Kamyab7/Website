@@ -15,7 +15,11 @@ async function subscribe() {
   message.value = '';
   failed.value = false;
   try {
-    const result = await $fetch('/api/subscribe', { method: 'POST', body: { email: email.value, website: website.value, consent: consent.value, turnstileToken: turnstileToken.value } });
+    const selectedTheme = document.documentElement.dataset.theme;
+    const theme = selectedTheme === 'light' || selectedTheme === 'dark'
+      ? selectedTheme
+      : window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+    const result = await $fetch('/api/subscribe', { method: 'POST', body: { email: email.value, website: website.value, consent: consent.value, turnstileToken: turnstileToken.value, theme } });
     message.value = result.message;
     email.value = '';
     consent.value = false;

@@ -6,7 +6,7 @@ import { confirmationEmail } from '../utils/newsletter-email';
 
 export default defineEventHandler(async (event) => {
   const config = newsletterConfig(event);
-  const body = await readBody<{ email?: unknown; website?: unknown; consent?: unknown; turnstileToken?: unknown }>(event);
+  const body = await readBody<{ email?: unknown; website?: unknown; consent?: unknown; turnstileToken?: unknown; theme?: unknown }>(event);
   if (body?.website) return { message: 'Check your inbox to confirm your subscription.' };
   if (body?.consent !== true || typeof body.email !== 'string' || body.email.length > 254 || !/^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/.test(body.email.trim())) {
     throw createError({ statusCode: 400, statusMessage: 'Enter a valid email and agree to receive updates.' });
@@ -23,7 +23,7 @@ export default defineEventHandler(async (event) => {
   const url = `${SITE_URL}/subscribe#${token}`;
   await resendRequest(config.resendApiKey, '/emails', { method: 'POST', body: {
     from: config.resendFrom, to: [email], subject: 'Confirm your subscription — Kamyab Valipour',
-    ...confirmationEmail(url, SITE_URL),
+    ...confirmationEmail(url, SITE_URL, body.theme === 'light' ? 'light' : 'dark'),
   } });
   return response;
 });
