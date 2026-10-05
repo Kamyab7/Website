@@ -13,7 +13,7 @@ export function newsletterConfig(event: H3Event) {
   }
   return config;
 }
-export async function resendRequest<T>(apiKey: string, path: string, options: { method: 'GET' | 'POST'; body?: Record<string, unknown>; headers?: Record<string, string> }) {
+export async function resendRequest<T>(apiKey: string, path: string, options: { method: 'GET' | 'POST' | 'PATCH'; body?: Record<string, unknown>; headers?: Record<string, string> }) {
   try {
     return await $fetch<T>(`https://api.resend.com${path}`, {
       ...options, headers: { Authorization: `Bearer ${apiKey}`, ...options.headers }, timeout: 10000, retry: 0,

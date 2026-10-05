@@ -65,9 +65,9 @@ The subscription flow is:
 
 1. The visitor opens the subscription modal, enters an email, agrees to receive updates, and completes Turnstile verification.
 2. `POST /api/subscribe` validates the input and the Turnstile token, then looks up the address in Resend Contacts.
-3. Existing Contacts receive no new confirmation email. Unsubscribed Contacts are not automatically reactivated.
+3. Active Contacts receive no new confirmation email. Unsubscribed Contacts receive a fresh confirmation link; submitting the form alone does not reactivate them.
 4. An address not found in Contacts receives a confirmation email with a link valid for one hour.
-5. The visitor opens `/subscribe` and clicks **Confirm subscription**. `POST /api/newsletter/confirm` verifies the encrypted token and creates the Contact.
+5. The visitor opens `/subscribe` and clicks **Confirm subscription**. `POST /api/newsletter/confirm` verifies the encrypted token and creates the Contact, or reactivates the existing Contact for a resubscription link. The configured newsletter segment is restored before reactivation.
 
 Confirmation emails use the website’s colors and the theme active when the visitor submits. System theme resolves to the current browser preference. A plain-text fallback is included; email clients may adjust colors.
 
@@ -90,7 +90,9 @@ The workflow runs independently of Vercel deployment, so an email can arrive bef
 
 Subscriber storage and unsubscribe handling remain in Resend. See the [Broadcast API documentation](https://resend.com/docs/api-reference/broadcasts/create-broadcast).
 
-An address awaiting confirmation is not yet a Contact, so another signup can send another confirmation. Only HTTP 404 from the contact lookup means the address is absent; other provider failures stop signup. Previously unsubscribed addresses require manual resubscription handling.
+An address awaiting confirmation is not yet a Contact, so another signup can send another confirmation. Only HTTP 404 from the contact lookup means the address is absent; other provider failures stop signup. Previously unsubscribed addresses can subscribe again through the form and confirm the new email. Resubscription requires Contacts update and segment membership write permissions on the server's Resend key.
+
+Original signup links cannot reactivate an unsubscribed Contact. Resubscription links are bound to the existing Contact ID and expire after one hour. Tokens are stateless, so a resubscription link can be reused during that hour, including after another unsubscribe; strict single-use enforcement requires durable token storage.
 
 ## Cloudflare Turnstile setup
 

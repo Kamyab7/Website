@@ -14,11 +14,12 @@ export default defineEventHandler(async (event) => {
   await verifyTurnstile(body.turnstileToken, config);
   const email = body.email.trim().toLowerCase();
   const response = { message: 'If this address is eligible, check your inbox for a confirmation link valid for one hour. Already subscribed? You’re all set.' };
-  const existing = await resendRequest<{ unsubscribed: boolean }>(config.resendApiKey, `/contacts/${encodeURIComponent(email)}`, { method: 'GET' });
-  // Preserve unsubscribe choices and avoid emailing existing subscribers again.
+  const existing = await resendRequest<{ id: string; unsubscribed: boolean }>(config.resendApiKey, `/contacts/${encodeURIComponent(email)}`, { method: 'GET' });
+  // Active subscribers need no email. Unsubscribed contacts must confirm a fresh opt-in.
   // A provider failure must stop the request; only an actual 404 means absent.
-  if (existing) return response;
-  const token = newsletterToken(email, config.newsletterSecret);
+  if (existing && !existing.unsubscribed) return response;
+  if (existing && !existing.id) throw createError({ statusCode: 502, statusMessage: 'The email service is unavailable. Please try again later.' });
+  const token = newsletterToken(email, config.newsletterSecret, Date.now(), existing?.id);
   // Fragment keeps the token out of server access logs and referrer URLs.
   const url = `${SITE_URL}/subscribe#${token}`;
   await resendRequest(config.resendApiKey, '/emails', { method: 'POST', body: {

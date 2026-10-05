@@ -12,13 +12,19 @@ function signup(existing, failure, verificationFailure) {
     () => 'token', () => ({ text: 'confirmation' }), 'https://example.com', async () => { if (verificationFailure) throw verificationFailure; });
   return { handler, calls };
 }
-test('existing subscribers and unsubscribed contacts receive no email', async () => {
-  for (const unsubscribed of [false, true]) {
+test('active subscribers receive no email', async () => {
+  for (const unsubscribed of [false]) {
     const { handler, calls } = signup({ unsubscribed });
     await handler({});
     assert.equal(calls.length, 1);
     assert.equal(calls[0].options.method, 'GET');
   }
+});
+test('unsubscribed contacts receive confirmation without being reactivated at signup', async () => {
+  const { handler, calls } = signup({ id: 'contact-id', unsubscribed: true });
+  await handler({});
+  assert.deepEqual(calls.map(call => call.options.method), ['GET', 'POST']);
+  assert.equal(calls[1].path, '/emails');
 });
 test('absent contacts receive confirmation and the same public response', async () => {
   const absent = signup(null);

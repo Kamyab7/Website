@@ -4,9 +4,14 @@ import ts from 'typescript';
 import { readFileSync } from 'node:fs';
 const source = readFileSync(new URL('../server/utils/newsletter-token.ts', import.meta.url), 'utf8');
 const { outputText } = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } });
-const { newsletterToken, readNewsletterToken } = await import(`data:text/javascript;base64,${Buffer.from(outputText).toString('base64')}`);
+const { newsletterToken, readNewsletterToken, readNewsletterConfirmation } = await import(`data:text/javascript;base64,${Buffer.from(outputText).toString('base64')}`);
 const secret = 'a'.repeat(64);
 const now = 1800000000000;
+test('resubscription intent is encrypted and authenticated with the contact ID', () => {
+  const token = newsletterToken('reader@example.com', secret, now, 'contact-id');
+  assert.deepEqual(readNewsletterConfirmation(token, secret, now), { email: 'reader@example.com', resubscribeContactId: 'contact-id' });
+  assert.equal(readNewsletterConfirmation(newsletterToken('reader@example.com', secret, now), secret, now).resubscribeContactId, undefined);
+});
 test('confirmation tokens hide the address and authenticate it', () => {
   const token = newsletterToken('reader@example.com', secret, now);
   assert.equal(readNewsletterToken(token, secret, now + 1000), 'reader@example.com');
