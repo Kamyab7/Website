@@ -11,6 +11,11 @@ export default defineEventHandler(async (event) => {
     throw createError({ statusCode: 400, statusMessage: 'Enter a valid email and agree to receive updates.' });
   }
   const email = body.email.trim().toLowerCase();
+  const response = { message: 'If this address is eligible, check your inbox for a confirmation link valid for one hour. Already subscribed? You’re all set.' };
+  const existing = await resendRequest<{ unsubscribed: boolean }>(config.resendApiKey, `/contacts/${encodeURIComponent(email)}`, { method: 'GET' });
+  // Preserve unsubscribe choices and avoid emailing existing subscribers again.
+  // A provider failure must stop the request; only an actual 404 means absent.
+  if (existing) return response;
   const token = newsletterToken(email, config.newsletterSecret);
   // Fragment keeps the token out of server access logs and referrer URLs.
   const url = `${SITE_URL}/subscribe#${token}`;
@@ -18,5 +23,5 @@ export default defineEventHandler(async (event) => {
     from: config.resendFrom, to: [email], subject: 'Confirm your subscription — Kamyab Valipour',
     ...confirmationEmail(url, SITE_URL),
   } });
-  return { message: 'Check your inbox to confirm your subscription. The link expires in one hour.' };
+  return response;
 });

@@ -160,3 +160,5 @@ Reference: https://resend.com/docs/api-reference/contacts/create-contact
 Reports are cached server-side for 60 seconds with stale responses disabled; changing configuration invalidates the cache. Each provider request times out after five seconds and does not retry. The response excludes keys, sender addresses, contact data, and raw provider errors. On Vercel, default Nitro cache storage may be local to an instance, so this is not a global request limiter; apply a Firewall rate limit to `/api/health` and poll no more often than once per minute.
 
 Example: `curl -i https://kamyabvalipour.com/api/health`
+
+Subscription requests now look up the address in Resend Contacts before sending confirmation. Existing contacts (including unsubscribed contacts) receive no new confirmation email. Only a contact lookup returning HTTP 404 is treated as absent; permission errors, rate limits, and service failures stop signup. An address awaiting confirmation is not yet a Contact and can request another link; apply the documented rate limits.

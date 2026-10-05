@@ -20,7 +20,9 @@ export async function resendRequest<T>(apiKey: string, path: string, options: { 
     });
   } catch (error) {
     // Do not log provider errors: they can contain recipient data and request headers.
-    if (options.method === 'GET' && (error as { statusCode?: number }).statusCode === 404) return null;
+    const status = (error as { statusCode?: number; response?: { status?: number } }).statusCode
+      ?? (error as { response?: { status?: number } }).response?.status;
+    if (options.method === 'GET' && path.startsWith('/contacts/') && status === 404) return null;
     throw createError({ statusCode: 502, statusMessage: 'The email service is unavailable. Please try again later.' });
   }
 }
