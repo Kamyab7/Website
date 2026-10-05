@@ -1,6 +1,7 @@
 import { SITE_URL } from '../../shared/site';
 import { newsletterConfig, resendRequest } from '../utils/newsletter';
 import { newsletterToken } from '../utils/newsletter-token';
+import { confirmationEmail } from '../utils/newsletter-email';
 
 export default defineEventHandler(async (event) => {
   const config = newsletterConfig(event);
@@ -15,7 +16,7 @@ export default defineEventHandler(async (event) => {
   const url = `${SITE_URL}/subscribe#${token}`;
   await resendRequest(config.resendApiKey, '/emails', { method: 'POST', body: {
     from: config.resendFrom, to: [email], subject: 'Confirm your subscription — Kamyab Valipour',
-    text: `Confirm that you want to receive blog updates from Kamyab Valipour:\n\n${url}\n\nThis link expires in one hour. If you did not request this, ignore this email.`,
+    ...confirmationEmail(url, SITE_URL),
   } });
   return { message: 'Check your inbox to confirm your subscription. The link expires in one hour.' };
 });
