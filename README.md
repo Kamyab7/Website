@@ -1,75 +1,185 @@
-import { test } from 'node:test';
-import assert from 'node:assert/strict';
-import ts from 'typescript';
-import { readFileSync } from 'node:fs';
-const source = readFileSync(new URL('../server/utils/health.ts', import.meta.url), 'utf8');
-const { outputText } = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } });
-const { checkDependencies } = await import(`data:text/javascript;base64,${Buffer.from(outputText).toString('base64')}`);
-const config = { resendApiKey: 'private-key', resendFrom: 'Kamyab <updates@example.com>', newsletterSecret: 'secret'.repeat(8), turnstileSecretKey: 'private-turnstile-secret', turnstileHostnames: 'example.com', public: { gaMeasurementId: 'G-TEST123', turnstileSiteKey: 'public-site-key' } };
-const successful = async url => url.includes('/siteverify') ? { success: false, 'error-codes': ['invalid-input-response'] } : url.includes('gtag/js') ? '/* google tag */' : url.includes('/contacts') ? { data: [{ email: 'private@example.com' }] } : { data: [{ name: 'example.com', status: 'verified', capabilities: { sending: 'enabled' } }] };
-test('missing settings cause degraded health without contacting providers', async () => {
-  const result = await checkDependencies({ resendApiKey: '', resendFrom: '', newsletterSecret: '', turnstileSecretKey: '', turnstileHostnames: '', public: { gaMeasurementId: '', turnstileSiteKey: '' } }, () => { throw new Error('Unexpected network call'); });
-  assert.equal(result.status, 'degraded');
-  assert.ok(Object.values(result.checks).every(check => check.status === 'not_configured'));
-});
-test('healthy checks only read providers and never expose secrets or contacts', async () => {
-  const calls = [];
-  const result = await checkDependencies(config, async (url, options) => { calls.push({ url, options }); return successful(url); });
-  assert.equal(result.status, 'ok');
-  assert.equal(calls.length, 4);
-  assert.ok(calls.filter(({ url }) => !url.includes('/siteverify')).every(({ options }) => !options.body && !options.method));
-  const probe = calls.find(({ url }) => url.includes('/siteverify'));
-  assert.equal(probe.options.body.get('secret'), config.turnstileSecretKey);
-  assert.equal(probe.options.body.get('response'), 'XXXX.DUMMY.TOKEN.XXXX');
-  const serialized = JSON.stringify(result);
-  for (const secret of [config.resendApiKey, config.resendFrom, config.newsletterSecret, config.turnstileSecretKey, 'private@example.com']) assert.ok(!serialized.includes(secret));
-});
-test('provider failures are independent and sanitized', async () => {
-  const result = await checkDependencies(config, async url => {
-    if (url.includes('api.resend.com')) throw { statusCode: 403, message: 'private-key private@example.com' };
-    return successful(url);
-  });
-  assert.equal(result.checks.ga4.status, 'ok');
-  assert.equal(result.checks.resend.status, 'error');
-  assert.match(result.checks.resend.message, /permissions/);
-  assert.ok(!JSON.stringify(result).includes('private-key'));
-});
-test('unverified senders, bad IDs, short secrets and rate limits fail health', async () => {
-  const result = await checkDependencies({ ...config, newsletterSecret: 'short', turnstileHostnames: 'https://example.com', public: { ...config.public, gaMeasurementId: 'invalid' } }, async url => url.includes('/domains') ? { data: [{ name: 'example.com', status: 'pending' }] } : successful(url));
-  assert.ok(Object.values(result.checks).every(check => check.status === 'error'));
-  const limited = await checkDependencies(config, async () => { throw { statusCode: 429 }; });
-  assert.match(limited.checks.resend.message, /rate limit/);
-  assert.match(limited.checks.ga4.message, /rate limit/);
-});
+# Kamyab Valipour — Portfolio & Blog
 
-test('Google JavaScript is requested as text instead of automatic Blob decoding', async () => {
-  const result = await checkDependencies(config, async (url, options) => {
-    if (url.includes('gtag/js')) {
-      assert.equal(options.responseType, 'text');
-      return '/* Google JavaScript */';
-    }
-    return successful(url);
-  });
-  assert.equal(result.checks.ga4.status, 'ok');
-});
-test('sender accepts bare emails and display names and rejects invalid values', async () => {
-  for (const sender of ['updates@example.com', 'Kamyab <updates@example.com>']) {
-    const result = await checkDependencies({ ...config, resendFrom: sender }, successful);
-    assert.equal(result.checks.resend.status, 'ok');
-  }
-  for (const sender of ['Kamyab', '"Kamyab <updates@example.com>"', 'updates@example.com>', 'Kamyab <updates@example.com']) {
-    const result = await checkDependencies({ ...config, resendFrom: sender }, successful);
-    assert.equal(result.checks.resend.status, 'error');
-  }
-});
+A Nuxt 4 website with a Markdown blog, light and dark themes, consent-based Google Analytics, and email subscriptions through Resend. Cloudflare Turnstile protects subscription requests. The frontend and API routes deploy together on Vercel; no separate backend is required.
 
-test('Turnstile rejects bad secrets, unexpected success, and provider failures', async () => {
-  for (const response of [{ success: false, 'error-codes': ['invalid-input-secret'] }, { success: true }, { success: false, 'error-codes': ['internal-error'] }, null]) {
-    const report = await checkDependencies(config, url => url.includes('/siteverify') ? Promise.resolve(response) : successful(url));
-    assert.equal(report.checks.turnstile.status, 'error');
-    assert.equal(report.status, 'degraded');
-  }
-  const report = await checkDependencies(config, url => { if (url.includes('/siteverify')) throw new Error('private-turnstile-secret'); return successful(url); });
-  assert.equal(report.checks.turnstile.status, 'error');
-  assert.ok(!JSON.stringify(report).includes(config.turnstileSecretKey));
-});
+## Local development
+
+```bash
+npm ci
+cp .env.example .env
+npm run dev
+```
+
+Fill in `.env` to enable integrations. This file is gitignored. The site can run without integration credentials, but subscriptions remain unavailable until their required settings are configured.
+
+| Command | Purpose |
+| --- | --- |
+| `npm run dev` | Start the development server |
+| `npm run build` | Build the frontend and server routes |
+| `npm run preview` | Preview the production build locally |
+| `npm run start` | Run the built Node server |
+| `npm run typecheck` | Check TypeScript and Vue types |
+| `node --test tests/*.test.mjs` | Run the test suite |
+
+Use `npm run build` for deployments that need subscriptions and health checks. `npm run generate` produces static output without the required server endpoints.
+
+## Environment variables
+
+Add these in **Vercel → Project Settings → Environment Variables**, scoped to Production, and redeploy after changing them. Preview deployments need their own settings.
+
+Enter only the value in Vercel’s value field, without a `KEY=` prefix or outer quotes. Mark private credentials as sensitive. The two `NUXT_PUBLIC_*` values are intentionally exposed to the browser.
+
+| Variable | Value | Visibility |
+| --- | --- | --- |
+| `NUXT_PUBLIC_GA_MEASUREMENT_ID` | Your GA4 ID, such as `G-XXXXXXXXXX`; leave blank to disable analytics | Public |
+| `NUXT_RESEND_API_KEY` | Resend API key with the permissions described below | Private |
+| `NUXT_RESEND_FROM` | `Kamyab <updates@your-verified-domain.com>` or a plain sender email | Private |
+| `NUXT_NEWSLETTER_SECRET` | Random secret of at least 32 characters | Private |
+| `NUXT_PUBLIC_TURNSTILE_SITE_KEY` | Turnstile widget site key | Public |
+| `NUXT_TURNSTILE_SECRET_KEY` | Turnstile widget secret key, **not a Cloudflare API token** | Private |
+| `NUXT_TURNSTILE_HOSTNAMES` | Comma-separated exact hostnames, such as `kamyabvalipour.com` | Server only |
+
+Generate the newsletter secret locally:
+
+```bash
+openssl rand -hex 32
+```
+
+Copy the generated value into `NUXT_NEWSLETTER_SECRET`. It encrypts and authenticates confirmation links. Keep it stable: changing it invalidates links already sent.
+
+## Vercel deployment
+
+1. Import the repository into Vercel and use the Nuxt framework preset with `npm run build`.
+2. Configure the environment variables above for Production.
+3. Confirm that `shared/site.ts` contains the production URL. Confirmation emails, canonical URLs, and feeds use it.
+4. Deploy and check `/api/health` on the production domain.
+5. Complete a real subscription test with an email address you own.
+
+Do not expose production credentials to untrusted preview deployments.
+
+## Resend setup and email updates
+
+Verify a sending domain in Resend and choose a sender address on that domain. Use a dedicated API key with access to send emails and read/create Contacts. The health check also needs Domains read access. A sending-only key cannot manage the subscriber list.
+
+The subscription flow is:
+
+1. The visitor opens the subscription modal, enters an email, agrees to receive updates, and completes Turnstile verification.
+2. `POST /api/subscribe` validates the input and the Turnstile token, then looks up the address in Resend Contacts.
+3. Existing Contacts receive no new confirmation email. Unsubscribed Contacts are not automatically reactivated.
+4. An address not found in Contacts receives a confirmation email with a link valid for one hour.
+5. The visitor opens `/subscribe` and clicks **Confirm subscription**. `POST /api/newsletter/confirm` verifies the encrypted token and creates the Contact.
+
+Confirmation emails use the website’s colors and the theme active when the visitor submits. System theme resolves to the current browser preference. A plain-text fallback is included; email clients may adjust colors.
+
+Confirmation tokens are placed in the URL fragment and removed from the address bar on page load. Opening the link alone does not activate the subscription; a button click is required.
+
+Send updates through **Resend Broadcasts**, including `{{{RESEND_UNSUBSCRIBE_URL}}}` in each broadcast. Publishing a blog post does **not** send an email automatically. Subscriber storage is handled by Resend Contacts.
+
+An address awaiting confirmation is not yet a Contact, so another signup can send another confirmation. Only HTTP 404 from the contact lookup means the address is absent; other provider failures stop signup. Previously unsubscribed addresses require manual resubscription handling.
+
+## Cloudflare Turnstile setup
+
+Create a **Managed** widget in Cloudflare Dashboard → Turnstile. Register each hostname that will serve the subscription form, then copy its site key and secret key into the corresponding environment variables.
+
+For Production, use:
+
+```text
+NUXT_TURNSTILE_HOSTNAMES=kamyabvalipour.com
+```
+
+If the form is also served on `www.kamyabvalipour.com`, register that hostname in the widget and include it in the comma-separated allowlist. Values must contain hostnames only, without schemes, paths, or quotes.
+
+For local development, use a widget registered for `localhost` and `127.0.0.1`, and set the local allowlist to `localhost,127.0.0.1`. Production explicitly rejects those local hostnames. Preview deployments need registered preview hostnames and matching environment settings.
+
+The widget loads when the subscription modal opens. The server calls Cloudflare Siteverify and requires strict success, action `newsletter`, and an allowed hostname before contacting Resend. Missing configuration fails closed. Tokens are single-use; the widget resets after unsuccessful submission attempts and is removed when the modal closes or signup succeeds.
+
+After configuring keys, test a successful signup, a direct request without a token, and a replayed token. Missing or replayed tokens must be rejected. Automated tests use mocked provider responses and do not replace this live browser test.
+
+## Rate limiting
+
+No distributed rate limiter is implemented in the application. Configure Vercel Firewall rules for:
+
+- `POST /api/subscribe`: for example, 5 requests per IP per 10 minutes.
+- `POST /api/newsletter/confirm`: limit repeated confirmation attempts.
+- `GET /api/health`: limit repeated provider probes; monitor no more frequently than once per minute.
+
+Turnstile verifies visitors; it is not a request rate limiter. The hidden honeypot and Origin check provide additional basic protection. Contact lookup prevents repeat confirmation emails to existing Contacts.
+
+## Dependency health check
+
+```bash
+curl -i https://kamyabvalipour.com/api/health
+```
+
+`GET /api/health` returns `status`, `checkedAt`, and individual `checks`. HTTP **200** means all probes passed. HTTP **503** with `status: "degraded"` means a dependency is missing, invalid, or unavailable.
+
+| Check | What it verifies | What it does not verify |
+| --- | --- | --- |
+| `ga4` | Measurement ID format and Google tag availability | Property ownership, browser consent behavior, or event collection |
+| `resend` | Authentication, Contacts read access, and verified sender domain | Contacts write permission, sending quota, or actual email delivery |
+| `newsletter` | Confirmation secret contains at least 32 characters | Secret randomness |
+| `turnstile` | Required settings, hostname allowlist, and a Siteverify secret probe | Site-key/secret pairing, widget domain registration, or real browser verification |
+
+The Turnstile probe sends an intentionally invalid dummy token and expects only `invalid-input-response`. It consumes no visitor token. The health check sends no emails and modifies no Contacts. Responses omit credentials, contact details, and raw provider errors.
+
+Reports are cached server-side for 60 seconds; configuration changes invalidate the cache. Each provider request has a five-second timeout and no retries. On Vercel, default cache storage may be local to an instance, so this cache is not a global rate limiter.
+
+This endpoint checks dependency readiness rather than basic server liveness. Missing GA4 produces 503 even though analytics is optional for browsing. Resend domain lookup covers the first 100 registered domains and reports an inconclusive failure if the sender is beyond that page.
+
+## Troubleshooting
+
+| Symptom | Check |
+| --- | --- |
+| Subscription form says unavailable | Set both Turnstile keys; check `/api/health` for server configuration errors |
+| Turnstile hostname error | Use exact hostnames; remove `https://`, paths, quotes, and local hostnames from Production |
+| Turnstile secret rejected | Use the widget secret key, not an account API token |
+| Resend sender format error | Use a complete email or `Name <email@domain.com>` without outer quotes |
+| Newsletter secret too short | Generate a new value using `openssl rand -hex 32` |
+| Contact lookup returns 404 | The address is absent from Contacts; it is only added after confirmation |
+| Confirmation email arrives again | An unconfirmed address can request another link; configure rate limits |
+| Old email template arrives | Deploy the latest code, request a fresh email, and inspect the new Resend `/emails` request’s `html` field |
+| Environment changes have no effect | Redeploy and ensure you are testing the environment where the variables were set |
+| GA4 health passes but reports are empty | Check real collection with Tag Assistant or GA4 Realtime after accepting analytics |
+
+## Writing blog posts
+
+Add a Markdown file under `content/blog/` with a lowercase, hyphenated filename. The filename becomes the post slug. For example, `my-new-post.md`:
+
+```markdown
+---
+title: My new post
+description: A short summary of the article.
+date: "2026-10-05"
+tags:
+  - Engineering
+draft: false
+---
+
+## Introduction
+
+Write your article here.
+```
+
+`title`, `description`, `date`, and a nonempty body are required. Optional fields include `updated`, `tags`, `image`, `imageAlt`, and `draft`. Dates use `YYYY-MM-DD`; `updated` cannot precede publication. Image paths must be site-relative or HTTPS URLs.
+
+Drafts and future-dated posts are excluded. Future posts require a rebuild when their date arrives. Raw HTML in Markdown is escaped. Blog data is regenerated during Nuxt setup and development content changes; `.generated/` is generated output.
+
+Posts are listed newest first with six posts per page. The site exposes `/rss.xml`, `/sitemap.xml`, and `/robots.txt`.
+
+## Project structure
+
+| Path | Purpose |
+| --- | --- |
+| `app/pages/` | Portfolio, blog, privacy, and confirmation pages |
+| `app/components/` | Header, theme picker, subscription modal, and Turnstile widget |
+| `app/assets/css/main.css` | Theme colors and site styles |
+| `content/blog/` | Markdown articles |
+| `server/api/` | Blog APIs, subscription handlers, and health endpoint |
+| `server/utils/` | Email rendering, token encryption, and dependency verification |
+| `shared/site.ts` | Canonical production URL |
+| `shared/theme.ts` | Browser theme preference handling |
+| `tests/` | Automated tests |
+
+## Privacy and analytics
+
+GA4 loads only after analytics consent when a valid measurement ID is configured. Visitors can change their choice through cookie settings. Light/dark preference is stored separately in the browser. The privacy page describes newsletter processing, Turnstile verification, and external services; review it when changing providers or behavior.
