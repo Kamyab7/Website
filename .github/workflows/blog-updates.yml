@@ -1,0 +1,47 @@
+name: Email new blog posts
+
+on:
+  push:
+    paths:
+      - 'content/blog/**'
+  workflow_dispatch:
+    inputs:
+      before:
+        description: 'Commit before publication (for retrying a missed update)'
+        required: true
+        type: string
+      dry_run:
+        description: 'Preview without sending emails'
+        default: true
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group: blog-updates
+  cancel-in-progress: false
+
+jobs:
+  send:
+    if: github.ref_name == github.event.repository.default_branch
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: Send publication updates
+        run: node scripts/blog-updates.mjs
+        env:
+          BLOG_BEFORE: ${{ github.event.before || inputs.before }}
+          BLOG_DRY_RUN: ${{ inputs.dry_run || false }}
+          NUXT_RESEND_API_KEY: ${{ secrets.NUXT_RESEND_API_KEY }}
+          NUXT_RESEND_FROM: ${{ secrets.NUXT_RESEND_FROM }}
+          NUXT_RESEND_SEGMENT_ID: ${{ secrets.NUXT_RESEND_SEGMENT_ID }}

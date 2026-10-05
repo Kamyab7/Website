@@ -19,6 +19,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     resendApiKey: "",
     resendFrom: "",
+    resendSegmentId: "",
     newsletterSecret: "",
     turnstileSecretKey: "",
     turnstileHostnames: "",

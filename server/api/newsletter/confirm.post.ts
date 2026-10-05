@@ -16,6 +16,9 @@ export default defineEventHandler(async (event) => {
   if (existing?.unsubscribed) {
     throw createError({ statusCode: 409, statusMessage: 'This address has unsubscribed. Contact me if you want to subscribe again.' });
   }
-  if (!existing) await resendRequest(config.resendApiKey, '/contacts', { method: 'POST', body: { email, unsubscribed: false } });
+  if (!existing) await resendRequest(config.resendApiKey, '/contacts', { method: 'POST', body: {
+    email, unsubscribed: false,
+    ...(config.resendSegmentId ? { segments: [{ id: config.resendSegmentId }] } : {}),
+  } });
   return { message: 'You’re subscribed. Future blog updates will arrive in your inbox.' };
 });

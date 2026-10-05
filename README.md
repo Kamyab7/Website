@@ -73,7 +73,22 @@ Confirmation emails use the website’s colors and the theme active when the vis
 
 Confirmation tokens are placed in the URL fragment and removed from the address bar on page load. Opening the link alone does not activate the subscription; a button click is required.
 
-Send updates through **Resend Broadcasts**, including `{{{RESEND_UNSUBSCRIBE_URL}}}` in each broadcast. Publishing a blog post does **not** send an email automatically. Subscriber storage is handled by Resend Contacts.
+### Automatic blog emails with GitHub Actions
+
+The workflow in `.github/workflows/blog-updates.yml` runs when `content/blog/` changes on the repository's default branch. It compares published posts before and after the push and sends one Resend Broadcast per newly published post, with its title, summary, article link, and unsubscribe link. Publishing a draft by setting `draft: false` also triggers an update. Editing an already published post does not send another email.
+
+To enable it:
+
+1. Create a **blog subscribers** segment in Resend. Add your existing confirmed newsletter Contacts to this segment.
+2. Set `NUXT_RESEND_SEGMENT_ID` to this segment's ID in Vercel and redeploy. New confirmed subscribers will be added to it automatically.
+3. In **GitHub → Settings → Secrets and variables → Actions**, add `NUXT_RESEND_API_KEY`, `NUXT_RESEND_FROM`, and `NUXT_RESEND_SEGMENT_ID`. Use the same sender and segment as Vercel. The GitHub API key needs Broadcasts read/create/send access; a sending-only key is insufficient.
+4. Publish a Markdown post by pushing or merging it into the default branch. Watch **Actions → Email new blog posts** for the result.
+
+Use **Run workflow** with the full 40-character commit SHA from before publication and leave **dry_run** enabled to preview the detected posts without contacting Resend. Disable it to recover a missed notification. The script stores a stable campaign name in Resend and skips existing non-draft campaigns on retries; keep these campaigns in Resend to retain duplicate protection. An existing draft is sent on retry. Inspect ambiguous provider failures in Resend before retrying.
+
+The workflow runs independently of Vercel deployment, so an email can arrive before the new page is deployed. Future-dated posts are excluded and becoming due alone does not trigger the workflow: rebuild/deploy the website and run the workflow with a commit from before the post was added or published. Renaming a post creates a new slug and is treated as a new publication. Initial pushes without a previous commit fail without sending. No live emails are sent by the automated tests.
+
+Subscriber storage and unsubscribe handling remain in Resend. See the [Broadcast API documentation](https://resend.com/docs/api-reference/broadcasts/create-broadcast).
 
 An address awaiting confirmation is not yet a Contact, so another signup can send another confirmation. Only HTTP 404 from the contact lookup means the address is absent; other provider failures stop signup. Previously unsubscribed addresses require manual resubscription handling.
 
