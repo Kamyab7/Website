@@ -1,5 +1,6 @@
 import { fileURLToPath } from "node:url";
 import { generateBlog } from "./scripts/blog.mjs";
+import { SITE_URL } from "./shared/site";
 
 const root = fileURLToPath(new URL(".", import.meta.url));
 generateBlog(root);
@@ -23,7 +24,11 @@ export default defineNuxtConfig({
   app: {
     head: {
       htmlAttrs: { lang: "en" },
-      link: [{ rel: "icon", type: "image/svg+xml", href: "/favicon.svg" }],
+      link: [
+        { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
+        { rel: "alternate", type: "application/rss+xml", title: "Blog — Kamyab Valipour", href: `${SITE_URL}/rss.xml` },
+      ],
     },
   },
+  nitro: { prerender: { routes: ["/rss.xml"] } },
 });

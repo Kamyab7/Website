@@ -109,3 +109,17 @@ processing/transfer arrangements, then update the notice. Also confirm your host
 provider, server-log retention, and correspondence retention practices; these cannot
 be determined from the source code. The page currently describes these limits without
 inventing provider names or retention periods.
+
+## RSS feed
+
+Subscribe at `https://kamyabvalipour.com/rss.xml`. The RSS 2.0 feed includes all
+published posts, newest first, with titles, summaries, canonical links, stable
+permalink identifiers, publication dates, and tags. Drafts and future-dated posts
+are excluded by the same content pipeline as the blog. An empty blog produces a
+valid feed with no items.
+
+Every page includes an RSS discovery link, and blog footers include a visible
+RSS link. The feed is prerendered for both SSR and static deployments; rebuild
+and redeploy after publishing or editing a post.
+
+Format reference: [RSS 2.0 specification](https://www.rssboard.org/rss-specification).
