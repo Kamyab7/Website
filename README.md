@@ -123,3 +123,13 @@ RSS link. The feed is prerendered for both SSR and static deployments; rebuild
 and redeploy after publishing or editing a post.
 
 Format reference: [RSS 2.0 specification](https://www.rssboard.org/rss-specification).
+
+## Theme preference
+
+The header theme icon cycles through System (monitor), Light (sun), and Dark
+(moon). System is the default and follows the operating system's color scheme,
+including changes while the page is open. The preference is stored under
+`kv-theme` in local storage and synchronized across tabs. If storage is blocked,
+manual changes still apply for the current page visit. An early head script
+applies saved preferences before the page paints; system colors also work without
+JavaScript.

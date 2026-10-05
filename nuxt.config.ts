@@ -1,6 +1,7 @@
 import { fileURLToPath } from "node:url";
 import { generateBlog } from "./scripts/blog.mjs";
 import { SITE_URL } from "./shared/site";
+import { themeInitScript } from "./shared/theme";
 
 const root = fileURLToPath(new URL(".", import.meta.url));
 generateBlog(root);
@@ -24,6 +25,7 @@ export default defineNuxtConfig({
   app: {
     head: {
       htmlAttrs: { lang: "en" },
+      script: [{ key: "theme-init", innerHTML: themeInitScript, tagPosition: "head" }],
       link: [
         { rel: "icon", type: "image/svg+xml", href: "/favicon.svg" },
         { rel: "alternate", type: "application/rss+xml", title: "Blog — Kamyab Valipour", href: `${SITE_URL}/rss.xml` },

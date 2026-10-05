@@ -14,6 +14,7 @@
             <path d="M4 11a9 9 0 0 1 9 9M4 4a16 16 0 0 1 16 16" />
           </svg>
         </a>
+        <ThemeToggle />
         <a class="button" href="mailto:valipourkamyab.official@gmail.com">Let’s talk</a>
       </nav>
     </header>

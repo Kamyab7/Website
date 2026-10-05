@@ -36,6 +36,7 @@ function openSettings() {
         <h2>Cookies and local storage</h2>
         <ul>
           <li><strong>Consent preference:</strong> <code>kv-cookie-consent-v1</code> is stored in your browser’s local storage to remember acceptance or rejection for 180 days. This preference is necessary to respect your choice and is not an analytics cookie.</li>
+          <li><strong>Theme preference:</strong> <code>kv-theme</code> remembers your System, Light, or Dark selection in local storage until you change it or clear browser storage. It is not used for analytics.</li>
           <li><strong>Analytics cookies:</strong> when analytics is configured and accepted, Google may set <code>_ga</code> and <code>_ga_*</code> cookies to distinguish visits and sessions. The site configures a 180-day cookie lifetime without automatic renewal on each page load.</li>
         </ul>
         <p>You can reject analytics without losing access to the site. You can also change your choice at any time. Rejecting after acceptance disables further collection through the site’s integration and removes accessible Google Analytics cookies; it does not automatically delete information already sent to Google. Withdrawing consent does not affect the lawfulness of processing before withdrawal.</p>
