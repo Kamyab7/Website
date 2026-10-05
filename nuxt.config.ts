@@ -17,6 +17,9 @@ export default defineNuxtConfig({
   devtools: { enabled: false },
   css: ["~/assets/css/main.css"],
   runtimeConfig: {
+    resendApiKey: "",
+    resendFrom: "",
+    newsletterSecret: "",
     public: {
       // TODO: Set NUXT_PUBLIC_GA_MEASUREMENT_ID to your GA4 G-XXXXXXXXXX ID.
       gaMeasurementId: "",

@@ -19,7 +19,7 @@ function openSettings() {
       <header class="blog-heading">
         <p class="eyebrow">YOUR PRIVACY</p>
         <h1>Privacy & cookies<span class="accent">.</span></h1>
-        <p>Last updated: <time datetime="2026-10-04">4 October 2026</time></p>
+        <p>Last updated: <time datetime="2026-10-05">5 October 2026</time></p>
       </header>
       <div class="prose">
         <p>This notice covers Kamyab Valipour’s portfolio and blog on this website.</p>
@@ -41,6 +41,9 @@ function openSettings() {
         </ul>
         <p>You can reject analytics without losing access to the site. You can also change your choice at any time. Rejecting after acceptance disables further collection through the site’s integration and removes accessible Google Analytics cookies; it does not automatically delete information already sent to Google. Withdrawing consent does not affect the lawfulness of processing before withdrawal.</p>
         <p><button class="privacy-settings-button" type="button" @click="openSettings">Manage cookie preferences</button></p>
+        <h2 id="email-updates">Email updates</h2>
+        <p>If you subscribe, your email address is sent to Resend to deliver a confirmation email. Only after you confirm do we add your address to the newsletter contact list. Confirmation links expire after one hour. We use your address to send blog updates based on your consent. Resend processes subscription information and email delivery data to provide this service; see <a href="https://resend.com/legal/privacy-policy">Resend’s privacy policy</a>.</p>
+        <p>Your subscription is kept until you unsubscribe or request deletion. Each newsletter includes an unsubscribe link. An unsubscribed address may remain in the mailing service to respect your choice; contact me to request deletion.</p>
         <h2>Contacting me</h2>
         <p>If you email me, I receive your email address and any information you choose to include. I use it to respond and manage our correspondence, based on the legitimate interest of answering enquiries, or to take steps at your request before entering a contract where applicable. Email providers process the message as part of delivering and storing email.</p>
         <h2>How long information is kept</h2>

@@ -133,3 +133,18 @@ including changes while the page is open. The preference is stored under
 manual changes still apply for the current page visit. An early head script
 applies saved preferences before the page paints; system colors also work without
 JavaScript.
+
+
+## Email subscriptions (Resend + Vercel)
+
+The blog form calls `/api/subscribe`. Resend sends a confirmation link valid for one hour. The visitor opens `/subscribe` and clicks Confirm; only then does `/api/newsletter/confirm` add the address to Resend Contacts. All secrets stay in private Nuxt runtime config. Existing unsubscribed contacts are not reactivated by confirmation links; handle resubscription directly with the subscriber.
+
+1. Verify a sending domain in Resend and create a dedicated API key with permission to send emails and manage Contacts (a sending-only key cannot manage Contacts).
+2. Add `NUXT_RESEND_API_KEY`, `NUXT_RESEND_FROM` (e.g. `Kamyab <updates@your-verified-domain.com>`), and `NUXT_NEWSLETTER_SECRET` (generate using `openssl rand -hex 32`) in Vercel Project Settings → Environment Variables. Keep production secrets out of untrusted preview deployments. For local testing, copy `.env.example` to the gitignored `.env`.
+3. Deploy using `npm run build` with Vercel’s Nuxt preset, not `npm run generate`. Redeploy after changing environment variables. Confirmation URLs use `shared/site.ts`; ensure its domain matches the deployed production site.
+4. Before enabling public signups, configure a Vercel Firewall rate-limit rule for POST `/api/subscribe`, for example 5 requests per IP per 10 minutes. Also limit POST `/api/newsletter/confirm`. The honeypot and Origin check are basic protections, not a distributed rate limiter. No in-memory limiter is used because Vercel functions run across instances.
+5. Test with an address you own: request confirmation, click the link, click Confirm, then check Resend Contacts. Test an expired link and an unsubscribed contact as well.
+
+Send new updates from Resend Broadcasts to your confirmed Contacts and include `{{{RESEND_UNSUBSCRIBE_URL}}}` in each broadcast. Publishing a blog post does not send an email automatically. No separate subscriber database is required. Confirmation tokens are encrypted, stored in the URL fragment, and removed from the address bar on load. Confirmation requires a button click so email scanners do not subscribe recipients just by opening the link.
+
+Reference: https://resend.com/docs/api-reference/contacts/create-contact

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { SITE_URL } from "#shared/site";
 import { blogPagePath, formatBlogDate } from '#shared/blog';
+const newsletterOpen = useState<boolean>('newsletter-open', () => false);
 const props = defineProps<{ page: number }>();
 const { data, error } = await useFetch('/api/blog', { query: { page: props.page }, key: `blog-page-${props.page}` });
 if (error.value || !data.value) throw createError({ statusCode: error.value?.statusCode || 500, statusMessage: error.value?.statusCode === 404 ? 'Page not found' : 'Unable to load blog' });
@@ -36,5 +37,11 @@ useBlogSeo({ title, description, path, schema: {
       <span>Page {{ page }} of {{ listing.totalPages }}</span>
       <a v-if="page < listing.totalPages" :href="blogPagePath(page + 1)" rel="next">Older posts →</a>
     </nav>
+    <section id="newsletter" class="newsletter" aria-labelledby="newsletter-invite-heading">
+      <p class="eyebrow">STAY IN THE LOOP</p>
+      <h2 id="newsletter-invite-heading">New notes, in your inbox<span class="accent">.</span></h2>
+      <p>Get an email when I share new articles and updates.</p>
+      <button class="button newsletter-invite" type="button" aria-haspopup="dialog" @click="newsletterOpen = true">Subscribe to updates</button>
+    </section>
   </BlogShell>
 </template>

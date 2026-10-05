@@ -1,3 +1,7 @@
+<script setup lang="ts">
+const newsletterOpen = useState<boolean>('newsletter-open', () => false);
+</script>
+
 <template>
     <header class="header">
       <a class="wordmark" href="/" aria-label="Kamyab Valipour home"
@@ -15,7 +19,7 @@
           </svg>
         </a>
         <ThemeToggle />
-        <a class="button" href="mailto:valipourkamyab.official@gmail.com">Let’s talk</a>
+        <button class="button newsletter-trigger" type="button" aria-haspopup="dialog" @click="newsletterOpen = true">Subscribe</button>
       </nav>
     </header>
 </template>
