@@ -1,164 +1,75 @@
-# Kamyab Valipour — personal website
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import ts from 'typescript';
+import { readFileSync } from 'node:fs';
+const source = readFileSync(new URL('../server/utils/health.ts', import.meta.url), 'utf8');
+const { outputText } = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 } });
+const { checkDependencies } = await import(`data:text/javascript;base64,${Buffer.from(outputText).toString('base64')}`);
+const config = { resendApiKey: 'private-key', resendFrom: 'Kamyab <updates@example.com>', newsletterSecret: 'secret'.repeat(8), turnstileSecretKey: 'private-turnstile-secret', turnstileHostnames: 'example.com', public: { gaMeasurementId: 'G-TEST123', turnstileSiteKey: 'public-site-key' } };
+const successful = async url => url.includes('/siteverify') ? { success: false, 'error-codes': ['invalid-input-response'] } : url.includes('gtag/js') ? '/* google tag */' : url.includes('/contacts') ? { data: [{ email: 'private@example.com' }] } : { data: [{ name: 'example.com', status: 'verified', capabilities: { sending: 'enabled' } }] };
+test('missing settings cause degraded health without contacting providers', async () => {
+  const result = await checkDependencies({ resendApiKey: '', resendFrom: '', newsletterSecret: '', turnstileSecretKey: '', turnstileHostnames: '', public: { gaMeasurementId: '', turnstileSiteKey: '' } }, () => { throw new Error('Unexpected network call'); });
+  assert.equal(result.status, 'degraded');
+  assert.ok(Object.values(result.checks).every(check => check.status === 'not_configured'));
+});
+test('healthy checks only read providers and never expose secrets or contacts', async () => {
+  const calls = [];
+  const result = await checkDependencies(config, async (url, options) => { calls.push({ url, options }); return successful(url); });
+  assert.equal(result.status, 'ok');
+  assert.equal(calls.length, 4);
+  assert.ok(calls.filter(({ url }) => !url.includes('/siteverify')).every(({ options }) => !options.body && !options.method));
+  const probe = calls.find(({ url }) => url.includes('/siteverify'));
+  assert.equal(probe.options.body.get('secret'), config.turnstileSecretKey);
+  assert.equal(probe.options.body.get('response'), 'XXXX.DUMMY.TOKEN.XXXX');
+  const serialized = JSON.stringify(result);
+  for (const secret of [config.resendApiKey, config.resendFrom, config.newsletterSecret, config.turnstileSecretKey, 'private@example.com']) assert.ok(!serialized.includes(secret));
+});
+test('provider failures are independent and sanitized', async () => {
+  const result = await checkDependencies(config, async url => {
+    if (url.includes('api.resend.com')) throw { statusCode: 403, message: 'private-key private@example.com' };
+    return successful(url);
+  });
+  assert.equal(result.checks.ga4.status, 'ok');
+  assert.equal(result.checks.resend.status, 'error');
+  assert.match(result.checks.resend.message, /permissions/);
+  assert.ok(!JSON.stringify(result).includes('private-key'));
+});
+test('unverified senders, bad IDs, short secrets and rate limits fail health', async () => {
+  const result = await checkDependencies({ ...config, newsletterSecret: 'short', turnstileHostnames: 'https://example.com', public: { ...config.public, gaMeasurementId: 'invalid' } }, async url => url.includes('/domains') ? { data: [{ name: 'example.com', status: 'pending' }] } : successful(url));
+  assert.ok(Object.values(result.checks).every(check => check.status === 'error'));
+  const limited = await checkDependencies(config, async () => { throw { statusCode: 429 }; });
+  assert.match(limited.checks.resend.message, /rate limit/);
+  assert.match(limited.checks.ga4.message, /rate limit/);
+});
 
-A responsive, single-screen Nuxt 4 profile with server-rendered content, a locally hosted GitHub portrait, accessible contact links, and a graphite / mint visual design.
+test('Google JavaScript is requested as text instead of automatic Blob decoding', async () => {
+  const result = await checkDependencies(config, async (url, options) => {
+    if (url.includes('gtag/js')) {
+      assert.equal(options.responseType, 'text');
+      return '/* Google JavaScript */';
+    }
+    return successful(url);
+  });
+  assert.equal(result.checks.ga4.status, 'ok');
+});
+test('sender accepts bare emails and display names and rejects invalid values', async () => {
+  for (const sender of ['updates@example.com', 'Kamyab <updates@example.com>']) {
+    const result = await checkDependencies({ ...config, resendFrom: sender }, successful);
+    assert.equal(result.checks.resend.status, 'ok');
+  }
+  for (const sender of ['Kamyab', '"Kamyab <updates@example.com>"', 'updates@example.com>', 'Kamyab <updates@example.com']) {
+    const result = await checkDependencies({ ...config, resendFrom: sender }, successful);
+    assert.equal(result.checks.resend.status, 'error');
+  }
+});
 
-## Development
-
-Use Node.js 22.12+.
-
-```sh
-npm install
-npm run dev
-```
-
-## Production
-
-The production origin is hardcoded as `https://kamyabvalipour.com` in `shared/site.ts`.
-
-```sh
-npm run typecheck
-npm run build
-npm run start
-```
-
-Deploy the complete `.output` directory to a Node-capable host and run `npm run start` (Node.js 22.12+). The server listens on port 3000 by default; set `PORT` and `HOST` as needed. Put your domain and HTTPS proxy in front of this server. Deploying only `.output/public` does not run SSR.
-
-SSR is explicitly enabled in `nuxt.config.ts`. Production pages render on each initial request, including their content and SEO metadata, then hydrate in the browser for interactions. Blog data is still generated from local Markdown at build time, so content changes require a rebuild and redeploy.
-
-For static hosting, use `npm run generate` instead and deploy `.output/public`. Nuxt crawls linked pages and prerenders their HTML. Both SSR and prerendering provide crawlable HTML without requiring JavaScript; switching between them alone does not guarantee better rankings.
-
-The homepage is server-rendered, and robots.txt and sitemap.xml are served by server routes. SEO includes a title, description, canonical URL, Open Graph and Twitter cards, a 1200×630 social image, and ProfilePage / Person JSON-LD. Configure your production domain, HTTPS, and preferred-domain redirects at your hosting provider. Search engine indexing is not guaranteed by metadata.
-
-Edit content and contact links in `app/app.vue`, styling in `app/assets/css/main.css`, and the portrait in `public/portrait.jpg`. The biography is adapted from the public GitHub profile; LinkedIn is linked without scraping its content. Fonts load from Google Fonts with local system fallbacks. No analytics or cookies are added.
-
-## Validation
-
-Verified production generation, TypeScript checking, clipboard copying, and viewport fit on desktop, tablet, mobile, and landscape screens. All profile content is visible together at standard screen sizes; unusually small viewports or enlarged accessibility text can scroll rather than clipping content. SEO metadata, robots.txt, and sitemap.xml remain available in the static output.
-
-The social image source is `scripts/social-card.html`; render it at 1200×630 pixels to update `public/social-card.png`.
-
-## Built-in blog
-
-Write posts in `content/blog/<slug>.md`. The filename becomes `/blog/<slug>`.
-Use lowercase letters, numbers, and hyphens; `page` is reserved for pagination.
-Start by editing `content/blog/welcome.md`, which is an unpublished draft.
-
-```md
----
-title: "Your article title"
-description: "A concise, unique summary for search results and social previews."
-date: "2026-10-04"
-updated: "2026-10-04" # Optional; must be on or after date
-tags: [".NET", "Engineering"]
-image: "/social-card.png" # Optional; site-relative path or HTTPS URL
-imageAlt: "Description of the social preview image" # Optional
-draft: false
----
-
-Write your article here. Start body sections with ## because the title is the H1.
-```
-
-- Posts are sorted newest first, with six posts per page. Subsequent pages use
-  `/blog/page/2`, `/blog/page/3`, etc. `/blog/page/1` redirects to `/blog`.
-- Markdown supports headings, links, lists, fenced code, tables, and images.
-  Raw HTML is disabled. Code blocks use plain monospace formatting.
-- Drafts and posts with a future publication date are excluded from the generated
-  data, public routes, and sitemap. Publishing scheduled posts requires a rebuild.
-- Posts, pagination, and the index are server-rendered on request (`npm run build`)
-  or prerendered for static hosting (`npm run generate`). Metadata includes
-  canonical URLs, Open Graph, Twitter cards, BlogPosting and breadcrumb structured
-  data, and sitemap modification dates. Invalid posts or pagination return 404.
-- Canonical URLs and sitemap links use the production origin in `shared/site.ts`.
-- Rebuild and redeploy after publishing. Restart `npm run dev` after adding or
-  changing Markdown if your running dev session does not pick it up automatically.
-- `.generated/blog.json` is generated from Markdown when Nuxt loads its config;
-  do not edit it directly. Published HTML is served through server endpoints and
-  Nuxt payloads; drafts are never included.
-- Run `node --test tests/blog.test.mjs` to check content validation and safe Markdown.
-
-Existing articles on the external blog are not imported automatically. If migrating
-existing URLs, add redirects on the old blog host to the matching new post URLs.
-
-## Google Analytics 4 and cookie consent
-
-TODO: Set `NUXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX` in your environment (see
-`.env.example`), then rebuild/redeploy. The default is blank, so no Google tag
-loads until you supply a valid ID **and** a visitor accepts analytics.
-
-The banner uses basic consent mode: no Google analytics script or analytics request
-before consent or after rejection on a fresh visit. Advertising consent stays denied.
-Accept/reject choices are stored locally for 180 days; Cookie settings lets visitors
-withdraw permission. Withdrawal disables collection and removes accessible GA cookies.
-Storage changes also synchronize across tabs. If browser storage is unavailable,
-the choice applies only to the current visit.
-
-Page views are sent on initial acceptance and Nuxt page navigation. In your GA4 web
-stream, turn off Enhanced Measurement's automatic browser-history page views to
-avoid duplicate SPA page views. The manual page-view event excludes query strings,
-URL fragments, and referrers. Do not put personal data into page titles or paths.
-Google Analytics reporting itself can only be verified once a real ID is configured.
-
-Implementation reference: [Google's basic consent mode](https://developers.google.com/tag-platform/security/concepts/consent-mode).
-
-## Privacy notice
-
-The `/privacy` page describes the implemented consent mechanism, external font/image
-requests, and contact handling. It is linked from the banner and both site footers.
-Before enabling GA4, confirm the actual GA4 retention period and Google account
-processing/transfer arrangements, then update the notice. Also confirm your hosting
-provider, server-log retention, and correspondence retention practices; these cannot
-be determined from the source code. The page currently describes these limits without
-inventing provider names or retention periods.
-
-## RSS feed
-
-Subscribe at `https://kamyabvalipour.com/rss.xml`. The RSS 2.0 feed includes all
-published posts, newest first, with titles, summaries, canonical links, stable
-permalink identifiers, publication dates, and tags. Drafts and future-dated posts
-are excluded by the same content pipeline as the blog. An empty blog produces a
-valid feed with no items.
-
-Every page includes an RSS discovery link, and blog footers include a visible
-RSS link. The feed is prerendered for both SSR and static deployments; rebuild
-and redeploy after publishing or editing a post.
-
-Format reference: [RSS 2.0 specification](https://www.rssboard.org/rss-specification).
-
-## Theme preference
-
-The header appearance menu offers System (monitor), Light (sun), and Dark
-(moon), with descriptions and the current selection shown. System is the default and follows the operating system's color scheme,
-including changes while the page is open. The preference is stored under
-`kv-theme` in local storage and synchronized across tabs. If storage is blocked,
-manual changes still apply for the current page visit. An early head script
-applies saved preferences before the page paints; system colors also work without
-JavaScript.
-
-
-## Email subscriptions (Resend + Vercel)
-
-The blog form calls `/api/subscribe`. Resend sends a confirmation link valid for one hour. The visitor opens `/subscribe` and clicks Confirm; only then does `/api/newsletter/confirm` add the address to Resend Contacts. All secrets stay in private Nuxt runtime config. Existing unsubscribed contacts are not reactivated by confirmation links; handle resubscription directly with the subscriber.
-
-1. Verify a sending domain in Resend and create a dedicated API key with permission to send emails and manage Contacts (a sending-only key cannot manage Contacts).
-2. Add `NUXT_RESEND_API_KEY`, `NUXT_RESEND_FROM` (e.g. `Kamyab <updates@your-verified-domain.com>`), and `NUXT_NEWSLETTER_SECRET` (generate using `openssl rand -hex 32`) in Vercel Project Settings → Environment Variables. Keep production secrets out of untrusted preview deployments. For local testing, copy `.env.example` to the gitignored `.env`.
-3. Deploy using `npm run build` with Vercel’s Nuxt preset, not `npm run generate`. Redeploy after changing environment variables. Confirmation URLs use `shared/site.ts`; ensure its domain matches the deployed production site.
-4. Before enabling public signups, configure a Vercel Firewall rate-limit rule for POST `/api/subscribe`, for example 5 requests per IP per 10 minutes. Also limit POST `/api/newsletter/confirm`. The honeypot and Origin check are basic protections, not a distributed rate limiter. No in-memory limiter is used because Vercel functions run across instances.
-5. Test with an address you own: request confirmation, click the link, click Confirm, then check Resend Contacts. Test an expired link and an unsubscribed contact as well.
-
-Send new updates from Resend Broadcasts to your confirmed Contacts and include `{{{RESEND_UNSUBSCRIBE_URL}}}` in each broadcast. Publishing a blog post does not send an email automatically. No separate subscriber database is required. Confirmation tokens are encrypted, stored in the URL fragment, and removed from the address bar on load. Confirmation requires a button click so email scanners do not subscribe recipients just by opening the link.
-
-Reference: https://resend.com/docs/api-reference/contacts/create-contact
-
-## Dependency health check
-
-`GET /api/health` returns a sanitized JSON report with `status`, `checkedAt`, and individual `checks`. HTTP 200 means all configured dependency checks passed; HTTP 503 (`degraded`) means a dependency is missing, invalid, or unavailable. Missing GA4 also produces 503, even though analytics is optional for browsing the site. This checks dependency readiness, not basic server liveness.
-
-- **GA4:** validates `NUXT_PUBLIC_GA_MEASUREMENT_ID` and fetches the Google tag. This verifies tag availability only, not property ownership, consent handling in a browser, or ingestion of events. Verify real collection with Google Tag Assistant or GA4 Realtime.
-- **Resend:** checks `NUXT_RESEND_API_KEY` and `NUXT_RESEND_FROM`, reads one contact to test authentication/Contacts permissions, and checks the sender’s domain verification through the Domains API. The key needs Contacts and Domains read access. No email is sent and no contact is modified. Successful checks do not guarantee delivery, sending quota, or Contacts write permission. Domain lookup covers the first 100 registered domains and reports an inconclusive failure if the sender lies beyond that page.
-- **Newsletter:** verifies that `NUXT_NEWSLETTER_SECRET` has at least 32 characters.
-
-Reports are cached server-side for 60 seconds with stale responses disabled; changing configuration invalidates the cache. Each provider request times out after five seconds and does not retry. The response excludes keys, sender addresses, contact data, and raw provider errors. On Vercel, default Nitro cache storage may be local to an instance, so this is not a global request limiter; apply a Firewall rate limit to `/api/health` and poll no more often than once per minute.
-
-Example: `curl -i https://kamyabvalipour.com/api/health`
-
-Subscription requests now look up the address in Resend Contacts before sending confirmation. Existing contacts (including unsubscribed contacts) receive no new confirmation email. Only a contact lookup returning HTTP 404 is treated as absent; permission errors, rate limits, and service failures stop signup. An address awaiting confirmation is not yet a Contact and can request another link; apply the documented rate limits.
+test('Turnstile rejects bad secrets, unexpected success, and provider failures', async () => {
+  for (const response of [{ success: false, 'error-codes': ['invalid-input-secret'] }, { success: true }, { success: false, 'error-codes': ['internal-error'] }, null]) {
+    const report = await checkDependencies(config, url => url.includes('/siteverify') ? Promise.resolve(response) : successful(url));
+    assert.equal(report.checks.turnstile.status, 'error');
+    assert.equal(report.status, 'degraded');
+  }
+  const report = await checkDependencies(config, url => { if (url.includes('/siteverify')) throw new Error('private-turnstile-secret'); return successful(url); });
+  assert.equal(report.checks.turnstile.status, 'error');
+  assert.ok(!JSON.stringify(report).includes(config.turnstileSecretKey));
+});

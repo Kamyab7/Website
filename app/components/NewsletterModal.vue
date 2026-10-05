@@ -37,6 +37,6 @@ onBeforeUnmount(unlockScroll);
 <template>
   <dialog ref="dialog" class="newsletter-modal" aria-labelledby="newsletter-heading" @cancel.prevent="close" @close="close" @click="dismissBackdrop">
     <button class="newsletter-close" type="button" aria-label="Close subscription form" @click="close">×</button>
-    <NewsletterSignup />
+    <NewsletterSignup v-if="open" />
   </dialog>
 </template>

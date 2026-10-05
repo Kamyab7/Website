@@ -304,3 +304,7 @@ button:disabled { opacity: .65; cursor: wait; }
 .subscription-privacy { color: var(--muted); font-size: 12px; }
 .subscription-footer a:hover { text-decoration: underline; text-underline-offset: 4px; }
 @media (max-width: 480px) { .subscription-card { margin: 0 auto; padding: 28px 20px; } }
+
+.newsletter-verification { margin: 16px 0; min-width: 0; }
+.newsletter-verification p { color: var(--text); font-size: 13px; line-height: 1.7; }
+.newsletter-verification button { margin-top: 8px; }

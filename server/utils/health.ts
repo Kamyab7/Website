@@ -2,10 +2,12 @@ export interface HealthConfig {
   resendApiKey: string;
   resendFrom: string;
   newsletterSecret: string;
-  public: { gaMeasurementId: string };
+  turnstileSecretKey: string;
+  turnstileHostnames: string;
+  public: { gaMeasurementId: string; turnstileSiteKey: string };
 }
 type Check = { status: 'ok' | 'error' | 'not_configured'; message: string };
-type Request = (url: string, options: { headers?: Record<string, string>; responseType?: 'text' | 'json' }) => Promise<unknown>;
+type Request = (url: string, options: { headers?: Record<string, string>; responseType?: 'text' | 'json'; method?: 'POST'; body?: URLSearchParams }) => Promise<unknown>;
 function failure(error: unknown): Check {
   const code = (error as { statusCode?: number; response?: { status?: number } })?.statusCode
     ?? (error as { response?: { status?: number } })?.response?.status;
@@ -40,10 +42,35 @@ export async function checkDependencies(config: HealthConfig, request: Request) 
       return { status: 'ok', message: 'Resend authentication, Contacts access, and sender domain verification passed. Actual email delivery is not tested.' };
     } catch (error) { return failure(error); }
   };
-  const [ga4Check, resendCheck] = await Promise.all([ga4(), resend()]);
+  const turnstile = async (): Promise<Check> => {
+    if (!config.public.turnstileSiteKey || !config.turnstileSecretKey || !config.turnstileHostnames.trim()) {
+      return { status: 'not_configured', message: 'Turnstile site key, secret key, or hostname allowlist is not set.' };
+    }
+    const hostnames = config.turnstileHostnames.split(',').map(host => host.trim().toLowerCase()).filter(Boolean);
+    if (!hostnames.length || hostnames.some(host => !/^(?:localhost|[a-z0-9]+(?:[.-][a-z0-9]+)*)$/.test(host)) ||
+      (process.env.NODE_ENV === 'production' && hostnames.some(host => host === 'localhost' || host === '127.0.0.1'))) {
+      return { status: 'error', message: 'Turnstile hostname allowlist is invalid or contains local hostnames in production.' };
+    }
+    try {
+      // An intentionally invalid token probes the secret without consuming a user token.
+      const result = await request('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+        method: 'POST', responseType: 'json',
+        body: new URLSearchParams({ secret: config.turnstileSecretKey, response: 'XXXX.DUMMY.TOKEN.XXXX' }),
+      }) as { success?: boolean; 'error-codes'?: string[] };
+      const codes = Array.isArray(result?.['error-codes']) ? result['error-codes'] : [];
+      if (codes.includes('invalid-input-secret') || codes.includes('missing-input-secret')) {
+        return { status: 'error', message: 'Turnstile secret key was rejected by Cloudflare.' };
+      }
+      if (result?.success !== false || codes.length !== 1 || codes[0] !== 'invalid-input-response') {
+        return { status: 'error', message: 'Turnstile verification probe returned an unexpected response.' };
+      }
+      return { status: 'ok', message: 'Turnstile secret probe and hostname configuration passed. Site-key pairing, widget domains, and real browser verification are not verified.' };
+    } catch (error) { return failure(error); }
+  };
+  const [ga4Check, resendCheck, turnstileCheck] = await Promise.all([ga4(), resend(), turnstile()]);
   const newsletter: Check = config.newsletterSecret.length >= 32
     ? { status: 'ok', message: 'Confirmation encryption secret is configured.' }
     : { status: config.newsletterSecret ? 'error' : 'not_configured', message: 'Confirmation encryption secret must contain at least 32 characters.' };
-  const checks = { ga4: ga4Check, resend: resendCheck, newsletter };
+  const checks = { ga4: ga4Check, resend: resendCheck, newsletter, turnstile: turnstileCheck };
   return { status: Object.values(checks).every(check => check.status === 'ok') ? 'ok' as const : 'degraded' as const, checkedAt: new Date().toISOString(), checks };
 }

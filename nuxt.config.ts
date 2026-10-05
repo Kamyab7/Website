@@ -20,7 +20,10 @@ export default defineNuxtConfig({
     resendApiKey: "",
     resendFrom: "",
     newsletterSecret: "",
+    turnstileSecretKey: "",
+    turnstileHostnames: "",
     public: {
+      turnstileSiteKey: "",
       // TODO: Set NUXT_PUBLIC_GA_MEASUREMENT_ID to your GA4 G-XXXXXXXXXX ID.
       gaMeasurementId: "",
     },

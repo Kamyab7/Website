@@ -12,7 +12,9 @@ export default defineEventHandler(async event => {
   setResponseHeader(event, 'X-Robots-Tag', 'noindex');
   const runtime = useRuntimeConfig(event);
   const report = await cachedCheck({ resendApiKey: runtime.resendApiKey, resendFrom: runtime.resendFrom,
-    newsletterSecret: runtime.newsletterSecret, public: { gaMeasurementId: runtime.public.gaMeasurementId } });
+    newsletterSecret: runtime.newsletterSecret, turnstileSecretKey: runtime.turnstileSecretKey,
+    turnstileHostnames: runtime.turnstileHostnames,
+    public: { gaMeasurementId: runtime.public.gaMeasurementId, turnstileSiteKey: runtime.public.turnstileSiteKey } });
   setResponseStatus(event, report.status === 'ok' ? 200 : 503);
   return report;
 });
