@@ -38,3 +38,24 @@ test('unverified senders, bad IDs, short secrets and rate limits fail health', a
   assert.match(limited.checks.resend.message, /rate limit/);
   assert.match(limited.checks.ga4.message, /rate limit/);
 });
+
+test('Google JavaScript is requested as text instead of automatic Blob decoding', async () => {
+  const result = await checkDependencies(config, async (url, options) => {
+    if (url.includes('gtag/js')) {
+      assert.equal(options.responseType, 'text');
+      return '/* Google JavaScript */';
+    }
+    return successful(url);
+  });
+  assert.equal(result.checks.ga4.status, 'ok');
+});
+test('sender accepts bare emails and display names and rejects invalid values', async () => {
+  for (const sender of ['updates@example.com', 'Kamyab <updates@example.com>']) {
+    const result = await checkDependencies({ ...config, resendFrom: sender }, successful);
+    assert.equal(result.checks.resend.status, 'ok');
+  }
+  for (const sender of ['Kamyab', '"Kamyab <updates@example.com>"', 'updates@example.com>', 'Kamyab <updates@example.com']) {
+    const result = await checkDependencies({ ...config, resendFrom: sender }, successful);
+    assert.equal(result.checks.resend.status, 'error');
+  }
+});

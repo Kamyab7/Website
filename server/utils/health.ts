@@ -5,7 +5,7 @@ export interface HealthConfig {
   public: { gaMeasurementId: string };
 }
 type Check = { status: 'ok' | 'error' | 'not_configured'; message: string };
-type Request = (url: string, options: { headers?: Record<string, string> }) => Promise<unknown>;
+type Request = (url: string, options: { headers?: Record<string, string>; responseType?: 'text' | 'json' }) => Promise<unknown>;
 function failure(error: unknown): Check {
   const code = (error as { statusCode?: number; response?: { status?: number } })?.statusCode
     ?? (error as { response?: { status?: number } })?.response?.status;
@@ -17,7 +17,7 @@ export async function checkDependencies(config: HealthConfig, request: Request) 
     if (!id) return { status: 'not_configured', message: 'GA4 measurement ID is not set.' };
     if (!/^G-[A-Z0-9]+$/.test(id)) return { status: 'error', message: 'GA4 measurement ID format is invalid.' };
     try {
-      const script = await request(`https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(id)}`, {});
+      const script = await request(`https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(id)}`, { responseType: 'text' });
       if (typeof script !== 'string' || !script.trim()) return { status: 'error', message: 'Google tag returned an unexpected response.' };
       return { status: 'ok', message: 'Measurement ID format is valid and Google tag is reachable. Property ownership and event collection are not verified.' };
     } catch (error) { return failure(error); }
@@ -26,7 +26,7 @@ export async function checkDependencies(config: HealthConfig, request: Request) 
     if (!config.resendApiKey || !config.resendFrom) return { status: 'not_configured', message: 'Resend API key or sender is not set.' };
     const sender = config.resendFrom.trim();
     const match = /^(?:[^<>\r\n]+<)?([^\s<>@]+@[^\s<>@]+\.[^\s<>@]+)>?$/.exec(sender);
-    if (!match || sender.includes('<') !== sender.endsWith('>')) return { status: 'error', message: 'Resend sender format is invalid.' };
+    if (!match || sender.includes('<') !== sender.endsWith('>')) return { status: 'error', message: 'NUXT_RESEND_FROM must be an email address or Name <email@verified-domain.com>, without surrounding quotes.' };
     const domain = match[1]!.split('@')[1]!.toLowerCase();
     const headers = { Authorization: `Bearer ${config.resendApiKey}` };
     try {
