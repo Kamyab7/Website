@@ -37,7 +37,7 @@ defineExpose({ reset });
 <template>
   <div class="newsletter-verification">
     <div ref="container" />
-    <p v-if="!siteKey" role="status">Subscriptions are temporarily unavailable. Please try again later.</p>
+    <p v-if="!siteKey" class="newsletter-unavailable" role="alert">Subscriptions are temporarily unavailable. Please try again later.</p>
     <div v-if="error" role="status"><p>{{ error }}</p><button type="button" class="privacy-settings-button" @click="render">Retry verification</button></div>
   </div>
 </template>
