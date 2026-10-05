@@ -41,7 +41,7 @@ useBlogSeo({ title, description, path, schema: {
       <p class="eyebrow">STAY IN THE LOOP</p>
       <h2 id="newsletter-invite-heading">New notes, in your inbox<span class="accent">.</span></h2>
       <p>Get an email when I share new articles and updates.</p>
-      <button class="button newsletter-invite" type="button" aria-haspopup="dialog" @click="newsletterOpen = true">Subscribe to updates</button>
+      <button class="button newsletter-trigger newsletter-invite" type="button" aria-haspopup="dialog" @click="newsletterOpen = true">Subscribe to updates</button>
     </section>
   </BlogShell>
 </template>
