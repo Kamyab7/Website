@@ -17,12 +17,17 @@ The production origin is hardcoded as `https://kamyabvalipour.com` in `shared/si
 
 ```sh
 npm run typecheck
-npm run generate
+npm run build
+npm run start
 ```
 
-Deploy `.output/public` to any static hosting provider. Alternatively, run `npm run build` and serve with `node .output/server/index.mjs` for a Node deployment.
+Deploy the complete `.output` directory to a Node-capable host and run `npm run start` (Node.js 22.12+). The server listens on port 3000 by default; set `PORT` and `HOST` as needed. Put your domain and HTTPS proxy in front of this server. Deploying only `.output/public` does not run SSR.
 
-The homepage, robots.txt, and sitemap.xml are prerendered. SEO includes a title, description, canonical URL, Open Graph and Twitter cards, a 1200×630 social image, and ProfilePage / Person JSON-LD. Configure your production domain, HTTPS, and preferred-domain redirects at your hosting provider. Search engine indexing is not guaranteed by metadata.
+SSR is explicitly enabled in `nuxt.config.ts`. Production pages render on each initial request, including their content and SEO metadata, then hydrate in the browser for interactions. Blog data is still generated from local Markdown at build time, so content changes require a rebuild and redeploy.
+
+For static hosting, use `npm run generate` instead and deploy `.output/public`. Nuxt crawls linked pages and prerenders their HTML. Both SSR and prerendering provide crawlable HTML without requiring JavaScript; switching between them alone does not guarantee better rankings.
+
+The homepage is server-rendered, and robots.txt and sitemap.xml are served by server routes. SEO includes a title, description, canonical URL, Open Graph and Twitter cards, a 1200×630 social image, and ProfilePage / Person JSON-LD. Configure your production domain, HTTPS, and preferred-domain redirects at your hosting provider. Search engine indexing is not guaranteed by metadata.
 
 Edit content and contact links in `app/app.vue`, styling in `app/assets/css/main.css`, and the portrait in `public/portrait.jpg`. The biography is adapted from the public GitHub profile; LinkedIn is linked without scraping its content. Fonts load from Google Fonts with local system fallbacks. No analytics or cookies are added.
 
@@ -59,7 +64,8 @@ Write your article here. Start body sections with ## because the title is the H1
   Raw HTML is disabled. Code blocks use plain monospace formatting.
 - Drafts and posts with a future publication date are excluded from the generated
   data, public routes, and sitemap. Publishing scheduled posts requires a rebuild.
-- Posts, pagination, and the index are prerendered at build time. Metadata includes
+- Posts, pagination, and the index are server-rendered on request (`npm run build`)
+  or prerendered for static hosting (`npm run generate`). Metadata includes
   canonical URLs, Open Graph, Twitter cards, BlogPosting and breadcrumb structured
   data, and sitemap modification dates. Invalid posts or pagination return 404.
 - Canonical URLs and sitemap links use the production origin in `shared/site.ts`.
@@ -67,7 +73,7 @@ Write your article here. Start body sections with ## because the title is the H1
   changing Markdown if your running dev session does not pick it up automatically.
 - `.generated/blog.json` is generated from Markdown when Nuxt loads its config;
   do not edit it directly. Published HTML is served through server endpoints and
-  prerender payloads; drafts are never included.
+  Nuxt payloads; drafts are never included.
 - Run `node --test tests/blog.test.mjs` to check content validation and safe Markdown.
 
 Existing articles on the external blog are not imported automatically. If migrating
