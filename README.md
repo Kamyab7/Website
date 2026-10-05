@@ -148,3 +148,15 @@ The blog form calls `/api/subscribe`. Resend sends a confirmation link valid for
 Send new updates from Resend Broadcasts to your confirmed Contacts and include `{{{RESEND_UNSUBSCRIBE_URL}}}` in each broadcast. Publishing a blog post does not send an email automatically. No separate subscriber database is required. Confirmation tokens are encrypted, stored in the URL fragment, and removed from the address bar on load. Confirmation requires a button click so email scanners do not subscribe recipients just by opening the link.
 
 Reference: https://resend.com/docs/api-reference/contacts/create-contact
+
+## Dependency health check
+
+`GET /api/health` returns a sanitized JSON report with `status`, `checkedAt`, and individual `checks`. HTTP 200 means all configured dependency checks passed; HTTP 503 (`degraded`) means a dependency is missing, invalid, or unavailable. Missing GA4 also produces 503, even though analytics is optional for browsing the site. This checks dependency readiness, not basic server liveness.
+
+- **GA4:** validates `NUXT_PUBLIC_GA_MEASUREMENT_ID` and fetches the Google tag. This verifies tag availability only, not property ownership, consent handling in a browser, or ingestion of events. Verify real collection with Google Tag Assistant or GA4 Realtime.
+- **Resend:** checks `NUXT_RESEND_API_KEY` and `NUXT_RESEND_FROM`, reads one contact to test authentication/Contacts permissions, and checks the sender’s domain verification through the Domains API. The key needs Contacts and Domains read access. No email is sent and no contact is modified. Successful checks do not guarantee delivery, sending quota, or Contacts write permission. Domain lookup covers the first 100 registered domains and reports an inconclusive failure if the sender lies beyond that page.
+- **Newsletter:** verifies that `NUXT_NEWSLETTER_SECRET` has at least 32 characters.
+
+Reports are cached server-side for 60 seconds with stale responses disabled; changing configuration invalidates the cache. Each provider request times out after five seconds and does not retry. The response excludes keys, sender addresses, contact data, and raw provider errors. On Vercel, default Nitro cache storage may be local to an instance, so this is not a global request limiter; apply a Firewall rate limit to `/api/health` and poll no more often than once per minute.
+
+Example: `curl -i https://kamyabvalipour.com/api/health`
